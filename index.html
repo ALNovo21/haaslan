@@ -10,6 +10,37 @@
   <!-- Bootstrap CDN -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    /* Zusätzliche Anpassungen für das responsive Design der Extra-Wünsche und Buttons */
+@media (max-width: 768px) {
+  .checkbox-group {
+    display: grid; /* Verwendet Grid-Layout für besseres Layout */
+    grid-template-columns: 1fr 1fr; /* Erzeugt zwei Spalten */
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .checkbox-group label {
+    display: block;
+    font-size: 12px;
+    gap: 5px;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 14px; /* Kleinere Schriftgröße auf mobilen Geräten */
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 500px; /* Verkleinert das Formular auf mobilen Geräten */
+  }
+
+  .order-container {
+    width: 100%;
+    max-width: 500px;
+  }
+}
+
     body {
       background-color: #f7f7f7;
       font-family: 'Arial', sans-serif;
@@ -293,6 +324,37 @@
         color: #555;
       }
     }
+    /* Zusätzliche Anpassungen für das responsive Design der Extra-Wünsche und Buttons */
+@media (max-width: 768px) {
+  .checkbox-group {
+    display: grid; /* Verwendet Grid-Layout für besseres Layout */
+    grid-template-columns: 1fr 1fr; /* Erzeugt zwei Spalten */
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .checkbox-group label {
+    display: block;
+    font-size: 12px;
+    gap: 5px;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 14px; /* Kleinere Schriftgröße auf mobilen Geräten */
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 500px; /* Verkleinert das Formular auf mobilen Geräten */
+  }
+
+  .order-container {
+    width: 100%;
+    max-width: 500px;
+  }
+}
+
   </style>
 </head>
 
