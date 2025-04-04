@@ -194,6 +194,79 @@
       gap: 12px;
       margin-bottom: 15px;
     }
+    /* Passwortseite - responsive Anpassungen */
+#password-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Volle Bildschirmhöhe */
+  background-color: #f7f7f7;
+}
+
+#password-form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px; /* Maximale Breite des Formulars */
+  text-align: center;
+}
+
+#password-form h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #3498db;
+}
+
+#password-form input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+#password-form button {
+  width: 100%;
+  padding: 12px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#password-form button:hover {
+  background-color: #2980b9;
+}
+
+#error-message {
+  color: red;
+  font-size: 14px;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #password-form {
+    padding: 15px;
+    max-width: 90%; /* Auf kleinen Bildschirmen mehr Platz für das Formular */
+  }
+
+  #password-form h2 {
+    font-size: 1.25rem;
+  }
+
+  #password-form input, #password-form button {
+    padding: 10px;
+    font-size: 14px; /* Kleinere Schriftgrößen auf mobilen Geräten */
+  }
+}
+
 
     .checkbox-group label {
       display: flex;
