@@ -495,7 +495,7 @@
             <div class="checkbox-group">
               <label><input type="checkbox" value="ohne Tomaten" /> ohne Tomaten</label>
               <label><input type="checkbox" value="ohne Soße" /> ohne Soße</label>
-              <label><input type="checkbox" value="Mit Schafkäse" /> Mit Schafkäse +0,50€</label>
+              <label><input type="checkbox" value="Mit Schafskäse" /> Mit Schafskäse +0,50€</label>
               <label><input type="checkbox" value="Mit Scharf" /> Mit Scharf</label>
             </div>
     
@@ -553,8 +553,8 @@
   checkboxes.forEach((checkbox) => extraChoices.push(checkbox.value));
 
   let price = calculatePrice(foodChoice, quantity, drinkChoice);
-  if (extraChoices.includes("Mit Schafkäse")) {
-    price += 0.50; // Schafkäse-Aufpreis
+  if (extraChoices.includes("Mit Schafskäse")) {
+    price += 0.50; // Schafskäse-Aufpreis
   }
 
   const order = {
