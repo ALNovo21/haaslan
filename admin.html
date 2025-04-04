@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Bestellübersicht</title>
+  
+  <!-- Bootstrap CSS CDN -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      color: #444;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    /* Password Screen Styling */
+    #password-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f9;
+    }
+
+    #password-form {
+      text-align: center;
+      padding: 30px;
+      border-radius: 8px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    #error-message {
+      color: red;
+      display: none;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Button Styles */
+    button {
+      background-color: #e74c3c;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Password Screen -->
+  <div id="password-container">
+    <div id="password-form" class="text-center">
+      <h2>Passwort eingeben</h2>
+      <input type="password" id="password-input" class="form-control mb-3" placeholder="Passwort" />
+      <button class="btn btn-primary" onclick="checkPassword()">Einloggen</button>
+      <p id="error-message" class="mt-3">Falsches Passwort!</p>
+    </div>
+  </div>
+
+  <!-- Admin Content (Hidden until password is correct) -->
+  <div id="admin-content" style="display: none;">
+    <div class="container">
+      <h1>Bestellübersicht</h1>
+
+      <!-- Orders Table -->
+      <h2>Alle Bestellungen</h2>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Besteller</th>
+            <th>Details</th>
+            <th>Stückanzahl</th>
+            <th>Preis</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody id="order-list"></tbody>
+      </table>
+
+      <!-- Order Variations Table -->
+      <h2>Bestellvariationen</h2>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Variation</th>
+            <th>Anzahl</th>
+          </tr>
+        </thead>
+        <tbody id="variation-list"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and jQuery CDN -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script>
+    // Load orders from localStorage
+    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+    // Password verification
+    function checkPassword() {
+      const enteredPassword = document.getElementById("password-input").value;
+      const correctPassword = "Haaslan";  // Correct password
+
+      if (enteredPassword === correctPassword) {
+        // Hide password screen and show admin content
+        document.getElementById("password-container").style.display = "none";
+        document.getElementById("admin-content").style.display = "block";
+        displayOrders();
+        countVariations();
+      } else {
+        // Show error message if password is incorrect
+        document.getElementById("error-message").style.display = "block";
+      }
+    }
+
+    // Display orders in the table
+    function displayOrders() {
+      const orderList = document.getElementById("order-list");
+      orderList.innerHTML = '';
+
+      orders.forEach((order, index) => {
+        const extrasText = order.extraChoices.length > 0 ? `Extras: ${order.extraChoices.join(", ")}` : "";
+        const drinkText = order.drinkChoice ? `Getränk: ${order.drinkChoice}` : "";
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${order.firstname} ${order.lastname}</td>
+          <td>
+            ${order.foodChoice} (${order.meatChoice})<br>
+            ${extrasText}<br>
+            ${drinkText}
+          </td>
+          <td>${order.quantity}</td>
+          <td>${order.price.toFixed(2)} €</td>
+          <td><button class="btn btn-danger" onclick="deleteOrder(${index})">Löschen</button></td>
+        `;
+        orderList.appendChild(row);
+      });
+    }
+
+    // Count and display order variations (including drinks)
+    function countVariations() {
+      const variationCount = {};
+
+      orders.forEach((order) => {
+        // Create a key for the main food + meat choice
+        const foodKey = `${order.foodChoice} ${order.meatChoice} ${order.extraChoices.join(" ")}`;
+
+        // Add food variation to the count
+        variationCount[foodKey] = (variationCount[foodKey] || 0) + order.quantity;
+
+        // If there's a drink, count it as a separate variation
+        if (order.drinkChoice) {
+          const drinkKey = `Getränk: ${order.drinkChoice}`;
+          variationCount[drinkKey] = (variationCount[drinkKey] || 0) + order.quantity;
+        }
+      });
+
+      const variationList = document.getElementById("variation-list");
+      variationList.innerHTML = '';
+
+      for (let variation in variationCount) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${variation}</td>
+          <td>${variationCount[variation]}</td>
+        `;
+        variationList.appendChild(row);
+      }
+    }
+
+    // Delete an order
+    function deleteOrder(index) {
+      orders.splice(index, 1);
+      localStorage.setItem('orders', JSON.stringify(orders));
+      displayOrders();
+      countVariations();
+    }
+  </script>
+
+</body>
+</html>

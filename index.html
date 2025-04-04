@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Unity Konfigurator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #0066cc;
+        }
+
+        .step {
+            margin-bottom: 20px;
+        }
+
+        .step h2 {
+            color: #0066cc;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #005bb5;
+        }
+
+        hr {
+            margin: 40px 0;
+            border: 0;
+            border-top: 2px solid #ddd;
+        }
+
+        .hardware-summary table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .hardware-summary th, .hardware-summary td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .hardware-summary th {
+            background-color: #f4f4f4;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+   
+<div class="container">
+    <h1>Novo Unity Konfigurator</h1>
+    <div class="container">
+        <div class="step">
+            <h2>1. Wählen Sie das Setup</h2>
+            <select id="kessel-selection">
+                <option value="setup1">Roulette Insel</option>
+                <option value="setup2">Terminal Aufstellung mit Live Setup</option>
+                <option value="setup3">Terminal Aufstellung mit Automated Game</option>
+            <option value="setup4">Terminal Aufstellung mit Flying</option>
+            </select>
+        </div>
+
+    <div class="step">
+        <h2>1. Wählen Sie die Kessel</h2>
+        <select id="kessel-selection">
+            <option value="kessel1">Kessel 1 (500€)</option>
+            <option value="kessel2">Kessel 2 (600€)</option>
+        </select>
+    </div>
+
+    <div class="step">
+        <h2>2. Auswahl des Database Servers</h2>
+        <select id="database-server">
+            <option value="server1">Server 1 (300€)</option>
+            <option value="server2">Server 2 (400€)</option>
+            <option value="server3">Server 3 (500€)</option>
+        </select>
+    </div>
+
+    <div class="step">
+        <h2>3. Auswahl des Kessels (590 oder 593)</h2>
+        <select id="kessel-type">
+            <option value="590">Kessel 590 (150€)</option>
+            <option value="593">Kessel 593 (200€)</option>
+        </select>
+    </div>
+
+    <div class="step">
+        <h2>4. Auswahl der Terminals</h2>
+        <select id="terminal-type">
+            <option value="c28a">Terminal C28A (100€)</option>
+            <option value="862">Terminal 862 (150€)</option>
+        </select>
+    </div>
+
+    <div class="step">
+        <h2>5. Werden Slots benötigt?</h2>
+        <select id="slots-required">
+            <option value="no">Nein</option>
+            <option value="yes">Ja</option>
+        </select>
+    </div>
+
+    <div class="step hidden" id="dongle-step">
+        <h2>Zusätzliche Auswahl: Server Dongle + Game Software Fee</h2>
+        <select id="dongle-selection">
+            <option value="dongle1">Dongle 1 (100€)</option>
+            <option value="dongle2">Dongle 2 (150€)</option>
+        </select>
+        <input type="text" id="game-software-fee-extra" value="Zusätzliche Game Software Fee jährlich (500€)" readonly />
+    </div>
+
+    <div class="step">
+        <h2>6. Stream verwenden?</h2>
+        <select id="stream-enabled">
+            <option value="no">Nein</option>
+            <option value="yes">Ja</option>
+        </select>
+    </div>
+
+    <div id="stream-options" class="hidden">
+        <div class="step">
+            <h2>Stream Setup</h2>
+            <select id="stream-setup">
+                <option value="stream1">Stream Setup 1 (250€)</option>
+                <option value="stream2">Stream Setup 2 (300€)</option>
+            </select>
+        </div>
+
+        <div class="step">
+            <h2>Welche Hardware wird benötigt?</h2>
+            <select id="hardware-setup">
+                <option value="hardware1">Hardware 1 (150€)</option>
+                <option value="hardware2">Hardware 2 (200€)</option>
+            </select>
+        </div>
+
+        <div class="step">
+            <h2>Hinzufügen von Stream Server PC</h2>
+            <select id="stream-server-pc">
+                <option value="server-pc1">Server PC 1 (500€)</option>
+                <option value="server-pc2">Server PC 2 (600€)</option>
+            </select>
+        </div>
+
+        <div class="step">
+            <h2>Kamera Setup</h2>
+            <select id="camera-setup">
+                <option value="ceiling">Deckenkonstruktion</option>
+                <option value="mount">Mit Mount</option>
+            </select>
+        </div>
+
+        <div class="step">
+            <h2>Hardware für Decke</h2>
+            <select id="ceiling-hardware">
+                <option value="camera-xy">Camera XY (300€)</option>
+                <option value="camera-xyz">Camera XYZ (350€)</option>
+            </select>
+        </div>
+
+        <div class="step">
+            <h2>Hardware für Mount</h2>
+            <select id="mount-hardware">
+                <option value="camera-mount">Camera + Mount Stange (200€)</option>
+                <option value="camera-mount2">Camera + Mount Stange 2 (250€)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <button id="submit-btn">Konfiguration abschließen</button>
+    </div>
+
+    <hr>
+
+    <div class="hardware-summary">
+        <h2>Zusammenfassung der ausgewählten Hardware:</h2>
+        <table id="hardware-table">
+            <thead>
+                <tr>
+                    <th>Hardware</th>
+                    <th>Preis (einmalig)</th>
+                    <th>Gebühr (jährlich)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamisch ausgefüllte Zeilen kommen hierhin -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('slots-required').addEventListener('change', function() {
+        document.getElementById('dongle-step').classList.toggle('hidden', this.value !== 'yes');
+    });
+
+    document.getElementById('stream-enabled').addEventListener('change', function() {
+        document.getElementById('stream-options').classList.toggle('hidden', this.value !== 'yes');
+    });
+
+    document.getElementById('submit-btn').addEventListener('click', function() {
+        const table = document.getElementById('hardware-table').getElementsByTagName('tbody')[0];
+        table.innerHTML = '';
+
+        const selections = [
+            { id: 'kessel-selection', name: 'Kessel', prices: { kessel1: 500, kessel2: 600 } },
+            { id: 'database-server', name: 'Database Server', prices: { server1: 300, server2: 400, server3: 500 } },
+            { id: 'kessel-type', name: 'Kessel Typ', prices: { '590': 150, '593': 200 } },
+            { id: 'terminal-type', name: 'Terminal', prices: { c28a: 100, '862': 150 } }
+        ];
+
+        selections.forEach(sel => {
+            const value = document.getElementById(sel.id).value;
+            const price = sel.prices[value] + '€';
+            const row = table.insertRow();
+            row.insertCell().textContent = sel.name;
+            row.insertCell().textContent = price;
+            row.insertCell().textContent = '0€';
+        });
+
+        // Game Software Default Fee
+        const rowDefaultFee = table.insertRow();
+        rowDefaultFee.insertCell().textContent = 'Game Software Fee';
+        rowDefaultFee.insertCell().textContent = '0€';
+        rowDefaultFee.insertCell().textContent = '500€ jährlich';
+
+        // Slots
+        if (document.getElementById('slots-required').value === 'yes') {
+            const dongle = document.getElementById('dongle-selection').value;
+            const donglePrice = dongle === 'dongle1' ? 100 : 150;
+
+            const row = table.insertRow();
+            row.insertCell().textContent = 'Server Dongle';
+            row.insertCell().textContent = donglePrice + '€';
+            row.insertCell().textContent = '0€';
+
+            const rowFee = table.insertRow();
+            rowFee.insertCell().textContent = 'Zusätzliche Game Software Fee';
+            rowFee.insertCell().textContent = '0€';
+            rowFee.insertCell().textContent = '500€ jährlich';
+        }
+
+        // Stream
+        if (document.getElementById('stream-enabled').value === 'yes') {
+            const streamSelections = [
+                { id: 'stream-setup', name: 'Stream Setup', prices: { stream1: 250, stream2: 300 } },
+                { id: 'hardware-setup', name: 'Stream Hardware', prices: { hardware1: 150, hardware2: 200 } },
+                { id: 'stream-server-pc', name: 'Stream Server PC', prices: { 'server-pc1': 500, 'server-pc2': 600 } },
+                { id: 'camera-setup', name: 'Kamera Setup', prices: { ceiling: 0, mount: 0 } },
+                { id: 'ceiling-hardware', name: 'Decken Hardware', prices: { 'camera-xy': 300, 'camera-xyz': 350 } },
+                { id: 'mount-hardware', name: 'Mount Hardware', prices: { 'camera-mount': 200, 'camera-mount2': 250 } }
+            ];
+
+            streamSelections.forEach(sel => {
+                const value = document.getElementById(sel.id).value;
+                if (sel.prices[value] > 0) {
+                    const row = table.insertRow();
+                    row.insertCell().textContent = sel.name;
+                    row.insertCell().textContent = sel.prices[value] + '€';
+                    row.insertCell().textContent = '0€';
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
