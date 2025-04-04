@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HPC</title>
+ 
+ 
+ 
+ <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f3f3f3;
+    }
+
+    header {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .admin-button {
+      background-color: white;
+      color: #3498db;
+      padding: 6px 12px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .admin-button:hover {
+      background-color: #f1f1f1;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 4px;
+    }
+
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: white;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 250px;
+      height: 100%;
+      background-color: white;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      transition: left 0.3s ease;
+      z-index: 999;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .sidebar a {
+      display: block;
+      margin-bottom: 15px;
+      color: #3498db;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 998;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    main {
+      padding: 20px;
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .form-container,
+    .order-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container {
+      width: 400px;
+      max-width: 100%;
+    }
+
+    .order-container {
+      width: 450px;
+      max-width: 100%;
+      display: none;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    label {
+      margin-top: 10px;
+      display: block;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      gap: 6px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #219150;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    .delete-button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .delete-button:hover {
+      background: color #db0f27;
+    }
+
+    .total-price {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .order-summary {
+      margin-top: 15px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-summary p {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .order-summary .drink {
+      font-style: italic;
+      color: #888;
+    }
+
+    .order-summary .extras {
+      font-size: 12px;
+      color: #666;
+    }
+
+    @media (max-width: 768px) {
+      .admin-button {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      main {
+        padding: 10px;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .form-container,
+      .order-container {
+        width: 100%;
+        max-width: 750px;
+      }
+
+      table,
+      thead,
+      tbody,
+      th,
+      td,
+      tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background: #fafafa;
+        padding: 10px;
+      }
+
+      td {
+        padding: 6px 0;
+        border: none;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+        margin-bottom: 4px;
+        color: #555;
+      }
+    }
+  </style>
+</head>
+<body>
+     <!-- Passwortabfrage -->
+  <div id="password-container">
+    <div id="password-form">
+      <h2>Passwort eingeben</h2>
+      <input type="password" id="password-input" placeholder="Passwort" />
+      <button onclick="checkPassword()">Einloggen</button>
+      <p id="error-message" style="color: red; display: none;">Falsches Passwort!</p>
+    </div>
+  </div>
+  <!-- Bestellübersicht (versteckt bis Passwort eingegeben wurde) -->
+  <div id="admin-content" style="display: none;">
+   
+
+    <header>
+        <h1>Haaslan Product Configurator</h1>
+        <a href="admin.html" class="admin-button">Admin</a>
+        <div class="hamburger" onclick="toggleSidebar()">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </header>
+    
+      <div class="sidebar" id="sidebar">
+        <a href="admin.html">Admin</a>
+        <a href="#">Startseite</a>
+      </div>
+      <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+      <main>
+        <div class="form-container">
+          <h2>Bestellformular</h2>
+          <form id="orderForm">
+            <label for="firstname">Vorname *</label>
+            <input type="text" id="firstname" required />
+    
+            <label for="lastname">Nachname *</label>
+            <input type="text" id="lastname" required />
+    
+            <label for="food-choice">Gericht</label>
+            <select id="food-choice">
+              <option value="" disabled selected>Bitte auswählen</option>
+              <option value="Kebap" data-price="6">Kebap - 6,00 €</option>
+              <option value="Dürüm" data-price="6.5">Dürüm - 6,50 €</option>
+            </select>
+    
+            <label for="meat-choice">Fleisch <span style="font-size: 0.8em; color: #888;">(wenn Gericht gewählt)</span></label>
+            <select id="meat-choice">
+              <option value="" disabled selected>Bitte auswählen</option>
+              <option value="Huhn">Huhn</option>
+              <option value="Kalb">Kalb</option>
+            </select>
+    
+            <label for="quantity">Menge *</label>
+            <input type="number" id="quantity" value="1" min="1" required />
+    
+            <label>Extra Wünsche (optional):</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" value="ohne Tomaten" /> ohne Tomaten</label>
+              <label><input type="checkbox" value="ohne Soße" /> ohne Soße</label>
+              <label><input type="checkbox" value="Mit Schafkäse" /> Mit Schafkäse +0,50€</label>
+              <label><input type="checkbox" value="Mit Scharf" /> Mit Scharf</label>
+            </div>
+    
+            <label for="drink-choice">Getränk</label>
+            <select id="drink-choice">
+              <option value="" disabled selected>Kein Getränk</option>
+              <option value="Ayran" data-price="2">Ayran - 2,00 €</option>
+            </select>
+    
+            <button type="button" onclick="saveOrder()">Bestellung speichern</button>
+          </form>
+        </div>
+    
+        <div class="order-container" id="order-container">
+          <h2>Bestellübersicht</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Besteller</th>
+                <th>Details</th>
+                <th>Stückanzahl</th>
+                <th>Preis</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="order-list"></tbody>
+          </table>
+          <div class="total-price">Gesamt: <span id="total-price">0,00 €</span></div>
+          <button onclick="submitOrders()">Bestellung absenden</button>
+        </div>
+      </main>
+    
+      <script>
+        function toggleSidebar() {
+          document.getElementById("sidebar").classList.toggle("active");
+          document.getElementById("overlay").classList.toggle("active");
+        }
+    
+        let orders = [];
+    
+        function saveOrder() {
+  const firstname = document.getElementById("firstname").value;
+  const lastname = document.getElementById("lastname").value;
+  const foodChoice = document.getElementById("food-choice").value;
+  const meatChoice = document.getElementById("meat-choice").value;
+  const quantity = parseInt(document.getElementById("quantity").value);
+  const drinkChoice = document.getElementById("drink-choice").value;
+
+  if (!firstname || !lastname || quantity < 1 || (!foodChoice && !drinkChoice)) {
+    alert("Bitte füllen Sie alle Pflichtfelder aus: Vorname, Nachname, Menge und wählen Sie entweder ein Gericht oder ein Getränk.");
+    return;
+  }
+
+  const extraChoices = [];
+  const checkboxes = document.querySelectorAll(".checkbox-group input:checked");
+  checkboxes.forEach((checkbox) => extraChoices.push(checkbox.value));
+
+  let price = calculatePrice(foodChoice, quantity, drinkChoice);
+  if (extraChoices.includes("Mit Schafkäse")) {
+    price += 0.50; // Schafkäse-Aufpreis
+  }
+
+  const order = {
+    firstname,
+    lastname,
+    foodChoice,
+    meatChoice,
+    quantity,
+    extraChoices,
+    drinkChoice,
+    price
+  };
+
+  // Füge die Bestellung dem 'orders' Array hinzu
+  orders.push(order);
+
+  // Speichere das 'orders' Array im localStorage
+  localStorage.setItem('orders', JSON.stringify(orders));
+
+  updateOrderList();
+
+  // Formular zurücksetzen (außer Vorname und Nachname)
+  document.getElementById("food-choice").value = "";
+  document.getElementById("meat-choice").value = "";
+  document.getElementById("quantity").value = 1;
+  document.getElementById("drink-choice").value = "";
+  checkboxes.forEach((checkbox) => checkbox.checked = false);
+}
+function checkPassword() {
+      const enteredPassword = document.getElementById("password-input").value;
+      const correctPassword = "Freitag";  // Das Passwort
+
+      if (enteredPassword === correctPassword) {
+        // Passwort korrekt, Bestellübersicht anzeigen
+        document.getElementById("password-container").style.display = "none";
+        document.getElementById("admin-content").style.display = "block";
+        displayOrders();
+        countVariations();
+      } else {
+        // Fehler, wenn das Passwort falsch ist
+        document.getElementById("error-message").style.display = "block";
+      }
+    }
+
+
+    
+        function calculatePrice(foodChoice, quantity, drinkChoice) {
+          let foodPrice = document.querySelector(`#food-choice option[value='${foodChoice}']`).dataset.price || 0;
+          let drinkPrice = document.querySelector(`#drink-choice option[value='${drinkChoice}']`).dataset.price || 0;
+          return (parseFloat(foodPrice) + parseFloat(drinkPrice)) * quantity;
+        }
+    
+        function updateOrderList() {
+          const orderList = document.getElementById("order-list");
+          orderList.innerHTML = "";
+    
+          let totalPrice = 0;
+    
+          orders.forEach((order, index) => {
+            totalPrice += order.price;
+    
+            const row = document.createElement("tr");
+    
+            const extrasText = order.extraChoices.length > 0 ? `Extras: ${order.extraChoices.join(", ")}` : "";
+            const drinkText = order.drinkChoice ? `Getränk: ${order.drinkChoice}` : "";
+    
+            row.innerHTML = `
+
+<td>${order.firstname} ${order.lastname}</td>
+<td>
+  ${order.foodChoice} (${order.meatChoice})<br>
+  ${extrasText}<br>
+  ${drinkText}
+</td>
+<td>Stückanzahl: ${order.quantity}</td>
+<td>${order.price.toFixed(2)} €</td>
+<td><button class="delete-button" onclick="deleteOrder(${index})">X</button></td>
+`;
+
+            orderList.appendChild(row);
+          });
+    
+          document.getElementById("total-price").innerText = `${totalPrice.toFixed(2)} €`;
+    
+          document.getElementById("order-container").style.display = orders.length > 0 ? 'block' : 'none';
+        }
+    
+        function deleteOrder(index) {
+          orders.splice(index, 1);
+          updateOrderList();
+        }
+    
+        function submitOrders() {
+          alert("Bestellung wurde abgeschickt!");
+          orders = [];
+          updateOrderList();
+        }
+      </script>
+    
+</body>
+</html>
