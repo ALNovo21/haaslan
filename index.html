@@ -4,24 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HPC</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
  
- 
- 
- <style>
-    * {
-      box-sizing: border-box;
-    }
-
+  <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
       background-color: #f3f3f3;
     }
-
+  
     header {
       background-color: #3498db;
       color: white;
-      padding: 10px 20px;
+      padding: 15px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -29,39 +22,39 @@
       top: 0;
       z-index: 10;
     }
-
+  
     header h1 {
       margin: 0;
-      font-size: 20px;
+      font-size: 1.25rem;
     }
-
+  
     .admin-button {
       background-color: white;
       color: #3498db;
-      padding: 6px 12px;
+      padding: 8px 16px;
       text-decoration: none;
       border-radius: 5px;
       font-weight: bold;
       font-size: 14px;
     }
-
+  
     .admin-button:hover {
       background-color: #f1f1f1;
     }
-
+  
     .hamburger {
       display: none;
       flex-direction: column;
       cursor: pointer;
       gap: 4px;
     }
-
+  
     .hamburger div {
       width: 25px;
       height: 3px;
       background-color: white;
     }
-
+  
     .sidebar {
       position: fixed;
       top: 0;
@@ -74,11 +67,11 @@
       transition: left 0.3s ease;
       z-index: 999;
     }
-
+  
     .sidebar.active {
       left: 0;
     }
-
+  
     .sidebar a {
       display: block;
       margin-bottom: 15px;
@@ -86,7 +79,7 @@
       text-decoration: none;
       font-weight: bold;
     }
-
+  
     .overlay {
       display: none;
       position: fixed;
@@ -97,11 +90,11 @@
       background: rgba(0, 0, 0, 0.3);
       z-index: 998;
     }
-
+  
     .overlay.active {
       display: block;
     }
-
+  
     main {
       padding: 20px;
       display: flex;
@@ -110,7 +103,7 @@
       justify-content: center;
       flex-wrap: wrap;
     }
-
+  
     .form-container,
     .order-container {
       background-color: white;
@@ -118,27 +111,29 @@
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-
+  
     .form-container {
       width: 400px;
       max-width: 100%;
     }
-
+  
     .order-container {
       width: 450px;
       max-width: 100%;
       display: none;
     }
-
+  
     h2 {
       text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
     }
-
+  
     label {
       margin-top: 10px;
       display: block;
     }
-
+  
     input,
     select {
       width: 100%;
@@ -148,21 +143,21 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-
+  
     .checkbox-group {
-  display: flex;
-  flex-wrap: wrap; /* Damit sie auf kleineren Bildschirmen umgebrochen werden können */
-  gap: 8px;  /* Abstand zwischen den Checkboxen */
-  margin-bottom: 15px;
-}
-
-.checkbox-group label {
-  display: flex;
-  align-items: center;  /* Stellt sicher, dass die Checkbox und der Text vertikal ausgerichtet sind */
-  font-size: 14px;
-  gap: 6px;  /* Fügt Abstand zwischen der Checkbox und dem Text hinzu */
-}
-
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+  
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      gap: 6px;
+    }
+  
     button {
       background-color: #3498db;
       color: white;
@@ -174,28 +169,28 @@
       font-size: 16px;
       margin-top: 10px;
     }
-
+  
     button:hover {
       background-color: #219150;
     }
-
+  
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
       font-size: 14px;
     }
-
+  
     th, td {
       border: 1px solid #ccc;
       padding: 6px;
       text-align: left;
     }
-
+  
     th {
       background-color: #f0f0f0;
     }
-
+  
     .delete-button {
       background-color: red;
       color: white;
@@ -208,12 +203,12 @@
     .delete-button:hover {
       background: color #db0f27;
     }
-
+  
     .total-price {
       margin-top: 10px;
       font-weight: bold;
     }
-
+  
     .order-summary {
       margin-top: 15px;
       padding: 20px;
@@ -221,43 +216,44 @@
       border-radius: 5px;
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     }
-
+  
     .order-summary p {
       margin: 6px 0;
       font-size: 14px;
     }
-
+  
     .order-summary .drink {
       font-style: italic;
       color: #888;
     }
-
+  
     .order-summary .extras {
       font-size: 12px;
       color: #666;
     }
-
+  
+    /* Responsive Styles */
     @media (max-width: 768px) {
       .admin-button {
         display: none;
       }
-
+  
       .hamburger {
         display: flex;
       }
-
+  
       main {
         padding: 10px;
         flex-direction: column;
         align-items: center;
       }
-
+  
       .form-container,
       .order-container {
         width: 100%;
         max-width: 750px;
       }
-
+  
       table,
       thead,
       tbody,
@@ -266,11 +262,11 @@
       tr {
         display: block;
       }
-
+  
       thead {
         display: none;
       }
-
+  
       tr {
         margin-bottom: 15px;
         border: 1px solid #ccc;
@@ -278,12 +274,12 @@
         background: #fafafa;
         padding: 10px;
       }
-
+  
       td {
         padding: 6px 0;
         border: none;
       }
-
+  
       td::before {
         content: attr(data-label);
         font-weight: bold;
@@ -293,6 +289,7 @@
       }
     }
   </style>
+
 </head>
 <body>
      <!-- Passwortabfrage -->
@@ -365,7 +362,7 @@
               <option value="Ayran" data-price="2">Ayran - 2,00 €</option>
             </select>
     
-            <button type="button" onclick="saveOrder()">Bestellung speichern</button>
+            <button type="button" onclick="saveOrder()">Speichern</button>
           </form>
         </div>
     
