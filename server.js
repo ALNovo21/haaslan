@@ -3,19 +3,17 @@ const { Pool } = require('pg');
 const cors = require('cors'); // CORS-Modul importieren
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;  // Falls PORT nicht gesetzt ist, nutze 3000 für lokale Entwicklung
 
 // PostgreSQL-Verbindung
+// PostgreSQL-Verbindung
 const pool = new Pool({
-  user: 'bestell_db_user',
-  host: 'dpg-cvoc153uibrs73bnqj6g-a.frankfurt-postgres.render.com',
-  database: 'bestell_db',
-  password: 'tBGiQsimADgbJBHdQ3tTeR1bqG6v39lI',
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false // Dies erlaubt uns, eine SSL-Verbindung ohne Zertifikatsprüfung herzustellen
   }
 });
+
 
 // CORS aktivieren
 app.use(cors());  // CORS für alle Ursprünge aktivieren
