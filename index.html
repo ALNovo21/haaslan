@@ -49,7 +49,7 @@
     }
 
     #sidebar-toggle {
-      display: none;
+      display: block;
     }
 
     @media (max-width: 768px) {
@@ -102,10 +102,66 @@
       border: 1px solid #ddd;
       padding: 15px;
     }
+
+    /* Password screen */
+    #password-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    #password-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #password-form {
+      background-color: #343a40;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      width: 300px;
+    }
+
+    #password-form input {
+      border-radius: 10px;
+      margin-bottom: 20px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    #password-form button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 10px;
+      width: 100%;
+    }
+
   </style>
 </head>
 
 <body>
+
+  <!-- Password Screen -->
+  <div id="password-screen">
+    <div id="password-form">
+      <h3>Passwort eingeben</h3>
+      <input type="password" id="password-input" placeholder="Passwort">
+      <button onclick="checkPassword()">Zugriff gewähren</button>
+    </div>
+  </div>
 
   <!-- Sidebar -->
   <div id="sidebar" class="sidebar">
@@ -151,6 +207,7 @@
                 <option value="Kalb">Kalb</option>
               </select>
             </div>
+
             <div class="form-group">
               <label for="quantity">Menge</label>
               <input type="number" class="form-control" id="quantity" value="1" min="1" required>
@@ -184,8 +241,6 @@
               </select>
             </div>
 
-
-
             <button type="submit" class="btn btn-primary">Bestellung hinzufügen</button>
           </form>
         </div>
@@ -199,7 +254,6 @@
             <p>Keine Bestellungen hinzugefügt.</p>
           </div>
           <button id="submit-orders" class="btn btn-success mt-3" style="display:none;">Bestellung abschicken</button>
-        
         </div>
       </div>
     </div>
@@ -207,109 +261,125 @@
 
   <!-- JavaScript -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<!-- JavaScript -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script>
-  let orders = [];
 
-  $('#order-form').on('submit', function (event) {
-    console.log('clicked');
-    event.preventDefault();
+  <script>
+    let orders = [];
+    const password = "Freitag";
 
-    const order = {
-      firstname: $('#firstname').val(),
-      lastname: $('#lastname').val(),
-      foodChoice: $('#food-choice').val(),
-      meatChoice: $('#meat-choice').val(),
-      quantity: parseInt($('#quantity').val(), 10),
-      extra_no_tomato: $('#extra-no-tomato').is(':checked'),
-      extra_no_sauce: $('#extra-no-sauce').is(':checked'),
-      extra_with_cheese: $('#extra-with-cheese').is(':checked'),
-      extra_spicy: $('#extra-spicy').is(':checked'),
-      drinkChoice: $('#drink-choice').val(),
-    };
-
-    order.price = calculatePrice(order);
-
-    orders.push(order);
-    updateOrderPreview();
-  });
-
-  function calculatePrice(order) {
-    let basePrice = order.foodChoice === "Kebap" ? 6 : 6.5;
-    let extras = 0;
-
-    if (order.extra_with_cheese) extras += 0.5;
-    if (order.drinkChoice === "Ayran") extras += 2;
-
-    return (basePrice + extras).toFixed(2);
-  }
-
-  function updateOrderPreview() {
-    const previewContainer = $('#order-preview');
-    previewContainer.empty();
-
-    if (orders.length === 0) {
-      previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
-      $('#submit-orders').hide();
+    // Check if password is stored
+    if (!localStorage.getItem("passwordEntered")) {
+      document.getElementById("password-screen").style.display = "flex";
     } else {
-      orders.forEach((order, index) => {
-        let extrasText = [];
-        if (order.extra_no_tomato) extrasText.push("Ohne Tomate");
-        if (order.extra_no_sauce) extrasText.push("Ohne Soße");
-        if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+0,50€)");
-        if (order.extra_spicy) extrasText.push("Mit Scharf");
-        if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
-
-        const total = (order.price * order.quantity).toFixed(2);
-
-        previewContainer.append(`
-          <div class="order-item mb-3">
-            <p><strong>${order.foodChoice} (${order.meatChoice}) - ${order.quantity}x</strong><br>
-            Extras: ${extrasText.join(', ') || "Keine"}<br>
-            Einzelpreis: €${order.price} - Gesamt: €${total}</p>
-            <button class="btn btn-danger btn-sm delete-order" data-index="${index}">Löschen</button>
-          </div>
-        `);
-      });
-      $('#submit-orders').show();
-    }
-  }
-
-  $(document).on('click', '.delete-order', function () {
-    const index = $(this).data('index');
-    orders.splice(index, 1);
-    updateOrderPreview();
-  });
-
-  // ✅ Nur wenn der Button geklickt wird, wird abgeschickt!
-  $('#submit-orders').on('click', function () {
-    if (orders.length === 0) {
-      alert('Keine Bestellungen vorhanden.');
-      return;
+      // If password is stored, hide the password screen
+      document.getElementById("password-screen").classList.add('hidden');
     }
 
-    $.ajax({
-      url: 'https://haaslan.onrender.com/submit-orders',
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(orders),
-      success: function () {
-        alert('Bestellung wurde erfolgreich abgeschickt!');
-        orders = [];
-        updateOrderPreview();
-      },
-      error: function () {
-        alert('Fehler beim Absenden der Bestellung.');
+    function checkPassword() {
+      const enteredPassword = document.getElementById("password-input").value;
+      if (enteredPassword === password) {
+        // Store password in local storage to avoid asking again
+        localStorage.setItem("passwordEntered", true);
+        document.getElementById("password-screen").classList.add('hidden');
+      } else {
+        alert("Falsches Passwort!");
       }
-    });
-  });
+    }
 
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.body.classList.toggle('sidebar-active');
-  }
-</script>
+    $('#order-form').on('submit', function (event) {
+      event.preventDefault();
+
+      const order = {
+        firstname: $('#firstname').val(),
+        lastname: $('#lastname').val(),
+        foodChoice: $('#food-choice').val(),
+        meatChoice: $('#meat-choice').val(),
+        quantity: parseInt($('#quantity').val(), 10),
+        extra_no_tomato: $('#extra-no-tomato').is(':checked'),
+        extra_no_sauce: $('#extra-no-sauce').is(':checked'),
+        extra_with_cheese: $('#extra-with-cheese').is(':checked'),
+        extra_spicy: $('#extra-spicy').is(':checked'),
+        drinkChoice: $('#drink-choice').val(),
+      };
+
+      order.price = calculatePrice(order);
+      orders.push(order);
+      updateOrderPreview();
+    });
+
+    function calculatePrice(order) {
+      let basePrice = order.foodChoice === "Kebap" ? 6 : 6.5;
+      let extras = 0;
+
+      if (order.extra_with_cheese) extras += 0.5;
+      if (order.drinkChoice === "Ayran") extras += 2;
+
+      return (basePrice + extras).toFixed(2);
+    }
+
+    function updateOrderPreview() {
+      const previewContainer = $('#order-preview');
+      previewContainer.empty();
+
+      if (orders.length === 0) {
+        previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
+        $('#submit-orders').hide();
+      } else {
+        orders.forEach((order, index) => {
+          let extrasText = [];
+          if (order.extra_no_tomato) extrasText.push("Ohne Tomate");
+          if (order.extra_no_sauce) extrasText.push("Ohne Soße");
+          if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+0,50€)");
+          if (order.extra_spicy) extrasText.push("Mit Scharf");
+          if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
+
+          const total = (order.price * order.quantity).toFixed(2);
+
+          previewContainer.append(`
+            <div class="order-item mb-3">
+              <p><strong>${order.foodChoice} (${order.meatChoice}) - ${order.quantity}x</strong><br>
+              Extras: ${extrasText.join(', ') || "Keine"}<br>
+              Einzelpreis: €${order.price} - Gesamt: €${total}</p>
+              <button class="btn btn-danger btn-sm delete-order" data-index="${index}">Löschen</button>
+            </div>
+          `);
+        });
+        $('#submit-orders').show();
+      }
+    }
+
+    $(document).on('click', '.delete-order', function () {
+      const index = $(this).data('index');
+      orders.splice(index, 1);
+      updateOrderPreview();
+    });
+
+    $('#submit-orders').on('click', function () {
+      if (orders.length === 0) {
+        alert('Keine Bestellungen vorhanden.');
+        return;
+      }
+
+      $.ajax({
+        url: 'https://haaslan.onrender.com/submit-orders',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(orders),
+        success: function () {
+          alert('Bestellung wurde erfolgreich abgeschickt!');
+          orders = [];
+          updateOrderPreview();
+        },
+        error: function () {
+          alert('Fehler beim Absenden der Bestellung.');
+        }
+      });
+    });
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.body.classList.toggle('sidebar-active');
+    }
+  </script>
 
 </body>
 
