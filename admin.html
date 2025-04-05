@@ -126,14 +126,14 @@
       : "https://haaslan.onrender.com";
 
     // Hilfsfunktion zur Datumsformatierung
-    function formatDate(date) {
+   /* function formatDate(date) {
       const d = new Date(date);
       if (isNaN(d.getTime())) return 'N/A';
       const day = String(d.getDate()).padStart(2, '0');
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const year = d.getFullYear().toString().slice(2);
       return `${day}.${month}.${year}`;
-    }
+    }*/
 
     // Passwortüberprüfung
     function checkPassword() {
@@ -260,13 +260,14 @@
           Object.values(summaryMap).forEach(entry => {
             summaryList.append(`
               <tr>
+                <td>${entry.quantity}</td>
                 <td>${entry.food}</td>
                 <td>${entry.meat}</td>
                 <td>${entry.mit_schafskäse ? 'X' : ''}</td>
                 <td>${entry.mit_scharf ? 'X' : ''}</td>
                 <td>${entry.ohne_soße ? 'X' : ''}</td>
                 <td>${entry.ohne_tomate ? 'X' : ''}</td>
-                <td>${entry.quantity}</td>
+                
               </tr>
             `);
           });
