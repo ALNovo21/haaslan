@@ -199,6 +199,7 @@
             <p>Keine Bestellungen hinzugefügt.</p>
           </div>
           <button id="submit-orders" class="btn btn-success mt-3" style="display:none;">Bestellung abschicken</button>
+        
         </div>
       </div>
     </div>
@@ -210,6 +211,7 @@
     let orders = [];
 
     $('#order-form').on('submit', function (event) {
+      console.log('clicked');
       event.preventDefault();
 
       const order = {
