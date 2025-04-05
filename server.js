@@ -4,6 +4,11 @@ const cors = require('cors'); // CORS-Modul importieren
 
 const app = express();
 const port = process.env.PORT || 3000;  // Falls PORT nicht gesetzt ist, nutze 3000 für lokale Entwicklung
+// Beispiel: Express Server (app.js oder server.js)
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
 
 // PostgreSQL-Verbindung
 const pool = new Pool({
