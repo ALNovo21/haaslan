@@ -22,8 +22,6 @@ app.use(cors());  // CORS für alle Ursprünge aktivieren
 
 // Middleware, um JSON-Daten zu verarbeiten
 app.use(express.json());
-
-// Endpunkt zum Abrufen der Bestellungen für den heutigen Tag
 app.get('/get-orders', async (req, res) => {
     try {
       const query = `
@@ -33,33 +31,36 @@ app.get('/get-orders', async (req, res) => {
         WHERE DATE(created_at) = CURRENT_DATE
       `;
       const result = await pool.query(query);
-      
+  
       // Bestellungen um das "Extra Wunsch"-Feld erweitern und Datum im gewünschten Format umwandeln
       const orders = result.rows.map(order => {
-        // Extra Wünsche in ein Array von Bezeichnungen umwandeln
-        let extraWunsch = [];
-        if (order.ohne_soße) extraWunsch.push("ohne Soße");
-        if (order.ohne_tomate) extraWunsch.push("ohne Tomate");
-        if (order.mit_scharf) extraWunsch.push("mit Scharf");
-        if (order.mit_schafskäse) extraWunsch.push("mit Schafskäse");
-  
         // Datum im Format DD.MM.YY umwandeln
         const createdAt = new Date(order.created_at);
         const formattedDate = `${String(createdAt.getDate()).padStart(2, '0')}.${String(createdAt.getMonth() + 1).padStart(2, '0')}.${createdAt.getFullYear().toString().slice(2)}`;
   
+        // Für die extra Wünsche: X, wenn `true`, sonst leer
+        const ohneSoße = order.ohne_soße ? "X" : "";
+        const ohneTomate = order.ohne_tomate ? "X" : "";
+        const mitScharf = order.mit_scharf ? "X" : "";
+        const mitSchafskäse = order.mit_schafskäse ? "X" : "";
+  
         return {
           ...order,
-          extra_wunsch: extraWunsch.join(", "), // Extra Wünsche als kommagetrennte Zeichenkette
+          ohne_soße: ohneSoße,   // Extra Wunsch: ohne Soße
+          ohne_tomate: ohneTomate, // Extra Wunsch: ohne Tomate
+          mit_scharf: mitScharf,  // Extra Wunsch: mit Scharf
+          mit_schafskäse: mitSchafskäse,  // Extra Wunsch: mit Schafskäse
           created_at: formattedDate
         };
       });
   
-      res.json({ orders });  // Bestellungen mit extra Wunsch zurückgeben
+      res.json({ orders });  // Bestellungen mit Extra Wünschen zurückgeben
     } catch (err) {
       console.error('Fehler beim Abrufen der Bestellungen:', err); // Fehler im Server loggen
       res.status(500).json({ error: err.message });  // Den Fehler in der Antwort zurückgeben
     }
   });
+  
   
 // Endpunkt zum Speichern einer neuen Bestellung (POST)
 app.post('/submit-orders', async (req, res) => {

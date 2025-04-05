@@ -21,7 +21,10 @@
           <th>Menge</th>
           <th>Gericht</th>
           <th>Fleisch</th>
-          <th>Extra Wünsche</th>
+          <th>Ohne Soße</th>
+          <th>Ohne Tomate</th>
+          <th>Mit Scharf</th>
+          <th>Mit Schafskäse</th>
           <th>Preis</th>
           <th>Datum</th>
           <th>Aktion</th>
@@ -31,6 +34,7 @@
         <!-- Bestellungen werden hier angezeigt -->
       </tbody>
     </table>
+    
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -44,9 +48,15 @@
         success: function(data) {
           const orderList = $('#order-list');
           orderList.empty();  // Bestehende Bestellungen leeren
-
+  
           // Bestellungen anzeigen
           data.orders.forEach(order => {
+            // Umwandlung von true/false zu "X" oder leer
+            const ohneSoße = order.ohne_soße ? 'X' : '';
+            const ohneTomate = order.ohne_tomate ? 'X' : '';
+            const mitScharf = order.mit_scharf ? 'X' : '';
+            const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
+            
             orderList.append(`
               <tr>
                 <td>${order.firstname}</td>
@@ -54,9 +64,12 @@
                 <td>${order.quantity}</td>
                 <td>${order.food_choice}</td>
                 <td>${order.meat_choice}</td>
-                <td>${order.extra_wunsch}</td>
+                <td>${ohneSoße}</td>  <!-- Extra Wunsch: ohne Soße -->
+                <td>${ohneTomate}</td> <!-- Extra Wunsch: ohne Tomate -->
+                <td>${mitScharf}</td>  <!-- Extra Wunsch: mit Scharf -->
+                <td>${mitSchafskäse}</td> <!-- Extra Wunsch: mit Schafskäse -->
                 <td>${order.total_price} €</td>
-                <td>${order.created_at}</td>
+                <td>${formatDate(order.created_at)}</td> <!-- Datum formatieren -->
                 <td>
                   <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
                 </td>
@@ -69,7 +82,7 @@
         }
       });
     }
-
+  
     // Bestellung löschen
     function deleteOrder(orderId) {
       $.ajax({
@@ -84,12 +97,27 @@
         }
       });
     }
+  
+    // Datum formatieren auf DD.MM.YY
+    function formatDate(date) {
+      const d = new Date(date);
 
+      // Überprüfen, ob das Datum ungültig ist
+      if (isNaN(d.getTime())) {
+        return 'N/A';  // Wenn das Datum ungültig ist, "N/A" zurückgeben
+      }
+
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear().toString().slice(2);  // Nur die letzten 2 Ziffern des Jahres
+      return `${day}.${month}.${year}`;
+    }
+  
     // Wenn die Seite geladen wird, Bestellungen abrufen und anzeigen
     $(document).ready(function() {
       fetchOrders();
     });
-
+  
     // Löschen einer Bestellung bei Klick auf den Löschen-Button
     $(document).on('click', '.delete-order', function() {
       const orderId = $(this).data('id');
