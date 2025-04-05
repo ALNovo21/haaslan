@@ -117,7 +117,17 @@
     // Passwortüberprüfung
     function checkPassword() {
       const password = document.getElementById("password").value;
-      if (password === "Haaslan") {
+
+      // Überprüfen, ob das Passwort im localStorage gespeichert ist
+      const storedPassword = localStorage.getItem("adminPassword");
+      if (storedPassword && storedPassword === "Haaslan") {
+        // Wenn das gespeicherte Passwort existiert und korrekt ist
+        document.getElementById("password-screen").style.display = "none";
+        document.getElementById("admin-content").style.display = "block";
+        fetchOrders(); // Bestellungen laden, wenn Zugriff gewährt wird
+      } else if (password === "Haaslan") {
+        // Wenn das eingegebene Passwort korrekt ist
+        localStorage.setItem("adminPassword", password); // Speichern des Passworts
         document.getElementById("password-screen").style.display = "none";
         document.getElementById("admin-content").style.display = "block";
         fetchOrders(); // Bestellungen laden, wenn Zugriff gewährt wird
@@ -260,9 +270,16 @@
 
     // Seite laden
     $(document).ready(function () {
-      // Wenn Passwort eingegeben, wird die Passwort-Screen ausgeblendet
-      document.getElementById("password-screen").style.display = "block";
-      document.getElementById("admin-content").style.display = "none";
+      // Überprüfen, ob das Passwort im localStorage gespeichert ist
+      const storedPassword = localStorage.getItem("adminPassword");
+      if (storedPassword && storedPassword === "Haaslan") {
+        document.getElementById("password-screen").style.display = "none";
+        document.getElementById("admin-content").style.display = "block";
+        fetchOrders(); // Bestellungen laden, wenn Zugriff gewährt wird
+      } else {
+        document.getElementById("password-screen").style.display = "block";
+        document.getElementById("admin-content").style.display = "none";
+      }
     });
   </script>
 
