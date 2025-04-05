@@ -294,21 +294,6 @@
       updateOrderPreview();
     });
 
-    $.ajax({
-  url: 'https://haaslan.onrender.com/submit-orders',
-  method: 'POST',
-  contentType: 'application/json',
-  data: JSON.stringify(orders),
-  success: function () {
-    alert('Bestellung wurde erfolgreich abgeschickt!');
-    orders = [];
-    updateOrderPreview();
-  },
-  error: function () {
-    alert('Fehler beim Absenden der Bestellung.');
-  }
-});
-
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('active');
       document.body.classList.toggle('sidebar-active');
