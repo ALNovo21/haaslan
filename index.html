@@ -47,23 +47,23 @@
           <div class="form-group">
             <label>Zusätzliche Optionen</label><br>
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="no-tomato" value="no-tomato">
-              <label class="form-check-label" for="no-tomato">Ohne Tomate</label>
+              <input class="form-check-input" type="checkbox" id="extra-no-tomato" value="true">
+              <label class="form-check-label" for="extra-no-tomato">Ohne Tomate</label>
             </div>
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="no-sauce" value="no-sauce">
-              <label class="form-check-label" for="no-sauce">Ohne Soße</label>
+              <input class="form-check-input" type="checkbox" id="extra-no-sauce" value="true">
+              <label class="form-check-label" for="extra-no-sauce">Ohne Soße</label>
             </div>
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="spicy" value="spicy">
-              <label class="form-check-label" for="spicy">Mit Scharf</label>
+              <input class="form-check-input" type="checkbox" id="extra-with-cheese" value="true">
+              <label class="form-check-label" for="extra-with-cheese">Mit Schafskäse</label>
             </div>
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="cheese" value="cheese">
-              <label class="form-check-label" for="cheese">Mit Schafskäse (+0,50€)</label>
+              <input class="form-check-input" type="checkbox" id="extra-spicy" value="true">
+              <label class="form-check-label" for="extra-spicy">Mit Scharf</label>
             </div>
           </div>
-
+          
           <!-- Getränke Auswahl -->
           <div class="form-group">
             <label for="drink-choice">Getränk (optional)</label>
@@ -112,10 +112,10 @@
         meatChoice: $('#meat-choice').val(),
         quantity: $('#quantity').val(),
         price: calculatePrice(),
-        noTomato: $('#no-tomato').is(':checked'),
-        noSauce: $('#no-sauce').is(':checked'),
-        spicy: $('#spicy').is(':checked'),
-        cheese: $('#cheese').is(':checked'),
+        extra_no_tomato: $('#extra-no-tomato').is(':checked'),
+        extra_no_sauce: $('#extra-no-sauce').is(':checked'),
+        extra_with_cheese: $('#extra-with-cheese').is(':checked'),
+        extra_spicy: $('#extra-spicy').is(':checked'),
         drinkChoice: $('#drink-choice').val(),
       };
 
@@ -128,7 +128,7 @@
     function calculatePrice() {
       let basePrice = $('#food-choice').val() === "Kebap" ? 6 : 6.5;
       let extras = 0;
-      if ($('#cheese').is(':checked')) {
+      if ($('#extra-with-cheese').is(':checked')) {
         extras = 0.5;
       }
       if ($('#drink-choice').val() === "Ayran") {
@@ -140,7 +140,7 @@
     // Aktualisiert die Bestellvorschau
     function updateOrderPreview() {
       const previewContainer = $('#order-preview');
-      previewContainer.empty();
+      previewContainer.empty();  // Hier leeren wir die Vorschau sofort
 
       if (orders.length === 0) {
         previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
@@ -168,6 +168,9 @@
 
     // Bestellungen absenden
     $('#submit-orders').on('click', function() {
+      const submitButton = $(this);
+      submitButton.prop('disabled', true); // Deaktiviert den Button, um doppelte Klicks zu verhindern
+
       $.ajax({
         url: 'http://localhost:3000/submit-orders',  // Dein API-Endpunkt
         method: 'POST',
@@ -180,6 +183,9 @@
         },
         error: function(error) {
           alert('Fehler beim Absenden der Bestellung.');
+        },
+        complete: function() {
+          submitButton.prop('disabled', false); // Aktiviert den Button wieder, wenn die Antwort kommt
         }
       });
     });
