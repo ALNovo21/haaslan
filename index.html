@@ -48,21 +48,26 @@
       margin-left: 250px;
     }
 
+    /* Hamburger menu button */
     #sidebar-toggle {
-      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      margin-left: auto;
+    }
+
+    @media (min-width: 769px) {
+      #sidebar-toggle {
+        display: block;
+      }
     }
 
     @media (max-width: 768px) {
       #sidebar-toggle {
         display: block;
-      }
-
-      .sidebar {
-        left: -250px;
-      }
-
-      body.sidebar-active {
-        margin-left: 0;
       }
     }
 
@@ -70,37 +75,29 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px;
-      background-color: #007bff;
+      padding: 15px 20px;
+      background: linear-gradient(135deg, #007bff, #0056b3);
       color: white;
-      border-radius: 10px 10px 0 0;
+      border-radius: 15px;
+      margin-top: 20px;
     }
 
     .header h1 {
-      font-size: 24px;
+      font-size: 26px;
+      margin: 0;
+      font-weight: bold;
     }
 
-    .header .btn {
-      background-color: #6c757d;
-      color: white;
+    .order-item {
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
     }
 
-    .card {
-      border-radius: 15px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-control {
-      border-radius: 10px;
-    }
-
-    .order-preview {
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      padding: 15px;
+    .order-total {
+      font-weight: bold;
+      font-size: 18px;
+      padding-top: 10px;
+      border-top: 2px solid #007bff;
     }
   </style>
 </head>
@@ -113,11 +110,18 @@
     <a href="admin.html">Admin Ansicht</a>
   </div>
 
+  <!-- Password screen -->
+  <div id="password-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <h2>Bitte Passwort eingeben</h2>
+    <input type="password" id="password-input" class="form-control w-50 my-3" placeholder="Passwort" />
+    <button class="btn btn-primary" onclick="checkPassword()">Weiter</button>
+  </div>
+
   <!-- Main content -->
   <div class="container">
     <div class="header">
       <h1>HPC - Haaslan Product Configurator</h1>
-      <button id="sidebar-toggle" class="btn" onclick="toggleSidebar()">☰ Admin</button>
+      <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     </div>
 
     <div class="row mt-4">
@@ -151,6 +155,7 @@
                 <option value="Kalb">Kalb</option>
               </select>
             </div>
+
             <div class="form-group">
               <label for="quantity">Menge</label>
               <input type="number" class="form-control" id="quantity" value="1" min="1" required>
@@ -184,8 +189,6 @@
               </select>
             </div>
 
-
-
             <button type="submit" class="btn btn-primary">Bestellung hinzufügen</button>
           </form>
         </div>
@@ -199,7 +202,6 @@
             <p>Keine Bestellungen hinzugefügt.</p>
           </div>
           <button id="submit-orders" class="btn btn-success mt-3" style="display:none;">Bestellung abschicken</button>
-        
         </div>
       </div>
     </div>
@@ -211,7 +213,6 @@
     let orders = [];
 
     $('#order-form').on('submit', function (event) {
-      console.log('clicked');
       event.preventDefault();
 
       const order = {
@@ -251,6 +252,8 @@
         previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
         $('#submit-orders').hide();
       } else {
+        let grandTotal = 0;
+
         orders.forEach((order, index) => {
           let extrasText = [];
           if (order.extra_no_tomato) extrasText.push("Ohne Tomate");
@@ -260,16 +263,27 @@
           if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
 
           const total = (order.price * order.quantity).toFixed(2);
+          grandTotal += parseFloat(total);
 
           previewContainer.append(`
-            <div class="order-item mb-3">
-              <p><strong>${order.foodChoice} (${order.meatChoice}) - ${order.quantity}x</strong><br>
-              Extras: ${extrasText.join(', ') || "Keine"}<br>
-              Einzelpreis: €${order.price} - Gesamt: €${total}</p>
+            <div class="order-item mb-2">
+              <p>
+                <strong>${order.foodChoice} (${order.meatChoice})</strong> – ${order.quantity}x<br>
+                Extras: ${extrasText.join(', ') || "Keine"}<br>
+                Einzelpreis: €${order.price} <br>
+                Gesamt: <strong>€${total}</strong>
+              </p>
               <button class="btn btn-danger btn-sm delete-order" data-index="${index}">Löschen</button>
             </div>
           `);
         });
+
+        previewContainer.append(`
+          <div class="order-total mt-3">
+            Gesamtkosten: <span class="text-success">€${grandTotal.toFixed(2)}</span>
+          </div>
+        `);
+
         $('#submit-orders').show();
       }
     }
@@ -295,11 +309,18 @@
   }
 });
 
-
-
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('active');
       document.body.classList.toggle('sidebar-active');
+    }
+
+    function checkPassword() {
+      const password = document.getElementById('password-input').value;
+      if (password === "Freitag") {
+        document.getElementById('password-screen').style.display = 'none';
+      } else {
+        alert("Falsches Passwort.");
+      }
     }
   </script>
 </body>
