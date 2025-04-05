@@ -18,28 +18,17 @@
         <tr>
           <th>Vorname</th>
           <th>Nachname</th>
-          <th>Gericht</th>
           <th>Menge</th>
+          <th>Gericht</th>
+          <th>Fleisch</th>
+          <th>Extra Wünsche</th>
           <th>Preis</th>
+          <th>Datum</th>
           <th>Aktion</th>
         </tr>
       </thead>
       <tbody id="order-list">
         <!-- Bestellungen werden hier angezeigt -->
-      </tbody>
-    </table>
-
-    <!-- Tabelle für die Häufigkeit der Bestellungen -->
-    <h2>Bestellhäufigkeit pro Gericht</h2>
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Gericht</th>
-          <th>Häufigkeit</th>
-        </tr>
-      </thead>
-      <tbody id="order-frequency-list">
-        <!-- Häufigkeit wird hier angezeigt -->
       </tbody>
     </table>
   </div>
@@ -62,41 +51,21 @@
               <tr>
                 <td>${order.firstname}</td>
                 <td>${order.lastname}</td>
-                <td>${order.food_choice}</td>
                 <td>${order.quantity}</td>
-                <td>${order.price} €</td>
-                <td><button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button></td>
+                <td>${order.food_choice}</td>
+                <td>${order.meat_choice}</td>
+                <td>${order.extra_wunsch}</td>
+                <td>${order.total_price} €</td>
+                <td>${order.created_at}</td>
+                <td>
+                  <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
+                </td>
               </tr>
             `);
           });
         },
         error: function(error) {
           alert('Fehler beim Abrufen der Bestellungen.');
-        }
-      });
-    }
-
-    // Häufigkeit der Bestellungen abrufen und anzeigen
-    function fetchOrderFrequency() {
-      $.ajax({
-        url: 'http://localhost:3000/get-order-frequency',  // Dein API-Endpunkt für die Bestellhäufigkeit
-        method: 'GET',
-        success: function(data) {
-          const orderFrequencyList = $('#order-frequency-list');
-          orderFrequencyList.empty();  // Bestehende Häufigkeit leeren
-
-          // Häufigkeit anzeigen
-          data.forEach(item => {
-            orderFrequencyList.append(`
-              <tr>
-                <td>${item.food_choice}</td>
-                <td>${item.count}</td>
-              </tr>
-            `);
-          });
-        },
-        error: function(error) {
-          alert('Fehler beim Abrufen der Bestellhäufigkeit.');
         }
       });
     }
@@ -116,10 +85,9 @@
       });
     }
 
-    // Wenn die Seite geladen wird, Bestellungen und Häufigkeit abrufen
+    // Wenn die Seite geladen wird, Bestellungen abrufen und anzeigen
     $(document).ready(function() {
       fetchOrders();
-      fetchOrderFrequency();
     });
 
     // Löschen einer Bestellung bei Klick auf den Löschen-Button
