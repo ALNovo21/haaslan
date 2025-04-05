@@ -12,31 +12,29 @@
     <h1 class="text-center mb-4">🍽️ Bestellübersicht</h1>
 
     <!-- Einzelne Bestellungen -->
-   <!-- Einzelne Bestellungen -->
-<h3>📋 Alle Bestellungen von heute</h3>
-<table class="table table-striped">
-  <thead class="thead-light">
-    <tr>
-      <th>Vorname</th>
-      <th>Nachname</th>
-      <th>Menge</th>
-      <th>Gericht</th>
-      <th>Fleisch</th>
-      <th>Ohne Soße</th>
-      <th>Ohne Tomate</th>
-      <th>Mit Scharf</th>
-      <th>Mit Schafskäse</th>
-      <th>Getränk</th>
-      <th>Preis</th>
-      <th>Datum</th>
-      <th>Aktion</th>
-    </tr>
-  </thead>
-  <tbody id="order-list">
-    <!-- Hier kommen die Bestellungen rein -->
-  </tbody>
-</table>
-
+    <h3>📋 Alle Bestellungen von heute</h3>
+    <table class="table table-striped">
+      <thead class="thead-light">
+        <tr>
+          <th>Vorname</th>
+          <th>Nachname</th>
+          <th>Menge</th>
+          <th>Gericht</th>
+          <th>Fleisch</th>
+          <th>Ohne Soße</th>
+          <th>Ohne Tomate</th>
+          <th>Mit Scharf</th>
+          <th>Mit Schafskäse</th>
+          <th>Getränk</th>
+          <th>Preis</th>
+          <th>Datum</th>
+          <th>Aktion</th>
+        </tr>
+      </thead>
+      <tbody id="order-list">
+        <!-- Hier kommen die Bestellungen rein -->
+      </tbody>
+    </table>
 
     <!-- Artikel-Zusammenfassung -->
     <h3 class="mt-5">📦 Artikel-Zusammenfassung</h3>
@@ -77,6 +75,10 @@
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
   <script>
+    const backendUrl = location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://haaslan.onrender.com";
+
     // Hilfsfunktion zur Datumsformatierung
     function formatDate(date) {
       const d = new Date(date);
@@ -90,7 +92,7 @@
     // Bestellung löschen
     function deleteOrder(orderId) {
       $.ajax({
-        url: `http://localhost:3000/delete-order/${orderId}`,
+        url: `${backendUrl}/delete-order/${orderId}`,
         method: 'DELETE',
         success: function () {
           fetchOrders(); // Nach dem Löschen neu laden
@@ -104,7 +106,7 @@
     // Bestellungen und Zusammenfassungen laden
     function fetchOrders() {
       $.ajax({
-        url: 'http://localhost:3000/get-orders',
+        url: `${backendUrl}/get-orders`,
         method: 'GET',
         success: function (data) {
           const orderList = $('#order-list');
