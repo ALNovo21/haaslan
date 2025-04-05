@@ -207,101 +207,110 @@
 
   <!-- JavaScript -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script>
-    let orders = [];
+<!-- JavaScript -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+  let orders = [];
 
-    $('#order-form').on('submit', function (event) {
-      console.log('clicked');
-      event.preventDefault();
+  $('#order-form').on('submit', function (event) {
+    console.log('clicked');
+    event.preventDefault();
 
-      const order = {
-        firstname: $('#firstname').val(),
-        lastname: $('#lastname').val(),
-        foodChoice: $('#food-choice').val(),
-        meatChoice: $('#meat-choice').val(),
-        quantity: parseInt($('#quantity').val(), 10),
-        extra_no_tomato: $('#extra-no-tomato').is(':checked'),
-        extra_no_sauce: $('#extra-no-sauce').is(':checked'),
-        extra_with_cheese: $('#extra-with-cheese').is(':checked'),
-        extra_spicy: $('#extra-spicy').is(':checked'),
-        drinkChoice: $('#drink-choice').val(),
-      };
+    const order = {
+      firstname: $('#firstname').val(),
+      lastname: $('#lastname').val(),
+      foodChoice: $('#food-choice').val(),
+      meatChoice: $('#meat-choice').val(),
+      quantity: parseInt($('#quantity').val(), 10),
+      extra_no_tomato: $('#extra-no-tomato').is(':checked'),
+      extra_no_sauce: $('#extra-no-sauce').is(':checked'),
+      extra_with_cheese: $('#extra-with-cheese').is(':checked'),
+      extra_spicy: $('#extra-spicy').is(':checked'),
+      drinkChoice: $('#drink-choice').val(),
+    };
 
-      order.price = calculatePrice(order);
+    order.price = calculatePrice(order);
 
-      orders.push(order);
-      updateOrderPreview();
-    });
+    orders.push(order);
+    updateOrderPreview();
+  });
 
-    function calculatePrice(order) {
-      let basePrice = order.foodChoice === "Kebap" ? 6 : 6.5;
-      let extras = 0;
+  function calculatePrice(order) {
+    let basePrice = order.foodChoice === "Kebap" ? 6 : 6.5;
+    let extras = 0;
 
-      if (order.extra_with_cheese) extras += 0.5;
-      if (order.drinkChoice === "Ayran") extras += 2;
+    if (order.extra_with_cheese) extras += 0.5;
+    if (order.drinkChoice === "Ayran") extras += 2;
 
-      return (basePrice + extras).toFixed(2);
+    return (basePrice + extras).toFixed(2);
+  }
+
+  function updateOrderPreview() {
+    const previewContainer = $('#order-preview');
+    previewContainer.empty();
+
+    if (orders.length === 0) {
+      previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
+      $('#submit-orders').hide();
+    } else {
+      orders.forEach((order, index) => {
+        let extrasText = [];
+        if (order.extra_no_tomato) extrasText.push("Ohne Tomate");
+        if (order.extra_no_sauce) extrasText.push("Ohne Soße");
+        if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+0,50€)");
+        if (order.extra_spicy) extrasText.push("Mit Scharf");
+        if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
+
+        const total = (order.price * order.quantity).toFixed(2);
+
+        previewContainer.append(`
+          <div class="order-item mb-3">
+            <p><strong>${order.foodChoice} (${order.meatChoice}) - ${order.quantity}x</strong><br>
+            Extras: ${extrasText.join(', ') || "Keine"}<br>
+            Einzelpreis: €${order.price} - Gesamt: €${total}</p>
+            <button class="btn btn-danger btn-sm delete-order" data-index="${index}">Löschen</button>
+          </div>
+        `);
+      });
+      $('#submit-orders').show();
     }
+  }
 
-    function updateOrderPreview() {
-      const previewContainer = $('#order-preview');
-      previewContainer.empty();
+  $(document).on('click', '.delete-order', function () {
+    const index = $(this).data('index');
+    orders.splice(index, 1);
+    updateOrderPreview();
+  });
 
-      if (orders.length === 0) {
-        previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
-        $('#submit-orders').hide();
-      } else {
-        orders.forEach((order, index) => {
-          let extrasText = [];
-          if (order.extra_no_tomato) extrasText.push("Ohne Tomate");
-          if (order.extra_no_sauce) extrasText.push("Ohne Soße");
-          if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+0,50€)");
-          if (order.extra_spicy) extrasText.push("Mit Scharf");
-          if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
-
-          const total = (order.price * order.quantity).toFixed(2);
-
-          previewContainer.append(`
-            <div class="order-item mb-3">
-              <p><strong>${order.foodChoice} (${order.meatChoice}) - ${order.quantity}x</strong><br>
-              Extras: ${extrasText.join(', ') || "Keine"}<br>
-              Einzelpreis: €${order.price} - Gesamt: €${total}</p>
-              <button class="btn btn-danger btn-sm delete-order" data-index="${index}">Löschen</button>
-            </div>
-          `);
-        });
-        $('#submit-orders').show();
-      }
+  // ✅ Nur wenn der Button geklickt wird, wird abgeschickt!
+  $('#submit-orders').on('click', function () {
+    if (orders.length === 0) {
+      alert('Keine Bestellungen vorhanden.');
+      return;
     }
-
-    $(document).on('click', '.delete-order', function () {
-      const index = $(this).data('index');
-      orders.splice(index, 1);
-      updateOrderPreview();
-    });
 
     $.ajax({
-  url: 'https://haaslan.onrender.com/submit-orders',
-  method: 'POST',
-  contentType: 'application/json',
-  data: JSON.stringify(orders),
-  success: function () {
-    alert('Bestellung wurde erfolgreich abgeschickt!');
-    orders = [];
-    updateOrderPreview();
-  },
-  error: function () {
-    alert('Fehler beim Absenden der Bestellung.');
+      url: 'https://haaslan.onrender.com/submit-orders',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(orders),
+      success: function () {
+        alert('Bestellung wurde erfolgreich abgeschickt!');
+        orders = [];
+        updateOrderPreview();
+      },
+      error: function () {
+        alert('Fehler beim Absenden der Bestellung.');
+      }
+    });
+  });
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.body.classList.toggle('sidebar-active');
   }
-});
+</script>
 
-
-
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('active');
-      document.body.classList.toggle('sidebar-active');
-    }
-  </script>
 </body>
 
 </html>
