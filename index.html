@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HPC - Haaslan Product Configurator</title>
+
+  <!-- Bootstrap CSS -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Custom CSS -->
@@ -46,26 +48,21 @@
       margin-left: 250px;
     }
 
-    /* Hamburger menu button */
     #sidebar-toggle {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 28px;
-      cursor: pointer;
-      padding: 0;
-      margin-left: auto;
-    }
-
-    @media (min-width: 769px) {
-      #sidebar-toggle {
-        display: block;
-      }
+      display: none;
     }
 
     @media (max-width: 768px) {
       #sidebar-toggle {
         display: block;
+      }
+
+      .sidebar {
+        left: -250px;
+      }
+
+      body.sidebar-active {
+        margin-left: 0;
       }
     }
 
@@ -73,49 +70,37 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 20px;
-      background: linear-gradient(135deg, #007bff, #0056b3);
+      padding: 15px;
+      background-color: #007bff;
       color: white;
-      border-radius: 15px;
-      margin-top: 20px;
+      border-radius: 10px 10px 0 0;
     }
 
     .header h1 {
-      font-size: 26px;
-      margin: 0;
-      font-weight: bold;
+      font-size: 24px;
     }
 
-    .order-item {
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 10px;
+    .header .btn {
+      background-color: #6c757d;
+      color: white;
     }
 
-    .order-total {
-      font-weight: bold;
-      font-size: 18px;
-      padding-top: 10px;
-      border-top: 2px solid #007bff;
+    .card {
+      border-radius: 15px;
     }
 
-    /* Password Screen */
-    #password-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      z-index: 2000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
+    .form-group {
+      margin-bottom: 15px;
     }
 
-    #password-input {
-      width: 300px;
-      margin-top: 10px;
+    .form-control {
+      border-radius: 10px;
+    }
+
+    .order-preview {
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      padding: 15px;
     }
   </style>
 </head>
@@ -128,18 +113,11 @@
     <a href="admin.html">Admin Ansicht</a>
   </div>
 
-  <!-- Password screen -->
-  <div id="password-screen">
-    <h2>Bitte Passwort eingeben</h2>
-    <input type="password" id="password-input" class="form-control w-50 my-3" placeholder="Passwort" />
-    <button class="btn btn-primary" onclick="checkPassword()">Weiter</button>
-  </div>
-
   <!-- Main content -->
   <div class="container">
     <div class="header">
       <h1>HPC - Haaslan Product Configurator</h1>
-      <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+      <button id="sidebar-toggle" class="btn" onclick="toggleSidebar()">☰ Admin</button>
     </div>
 
     <div class="row mt-4">
@@ -173,7 +151,6 @@
                 <option value="Kalb">Kalb</option>
               </select>
             </div>
-
             <div class="form-group">
               <label for="quantity">Menge</label>
               <input type="number" class="form-control" id="quantity" value="1" min="1" required>
@@ -207,6 +184,8 @@
               </select>
             </div>
 
+
+
             <button type="submit" class="btn btn-primary">Bestellung hinzufügen</button>
           </form>
         </div>
@@ -220,6 +199,7 @@
             <p>Keine Bestellungen hinzugefügt.</p>
           </div>
           <button id="submit-orders" class="btn btn-success mt-3" style="display:none;">Bestellung abschicken</button>
+        
         </div>
       </div>
     </div>
@@ -227,105 +207,110 @@
 
   <!-- JavaScript -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script>
-    let orders = [];
+<!-- JavaScript -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+  let orders = [];
 
-    $('#order-form').on('submit', function (event) {
-      event.preventDefault();
+  $('#order-form').on('submit', function (event) {
+    console.log('clicked');
+    event.preventDefault();
 
-      const order = {
-        firstname: $('#firstname').val(),
-        lastname: $('#lastname').val(),
-        foodChoice: $('#food-choice').val(),
-        meatChoice: $('#meat-choice').val(),
-        quantity: parseInt($('#quantity').val(), 10),
-        extra_no_tomato: $('#extra-no-tomato').is(':checked'),
-        extra_no_sauce: $('#extra-no-sauce').is(':checked'),
-        extra_with_cheese: $('#extra-with-cheese').is(':checked'),
-        extra_spicy: $('#extra-spicy').is(':checked'),
-        drinkChoice: $('#drink-choice').val(),
-      };
+    const order = {
+      firstname: $('#firstname').val(),
+      lastname: $('#lastname').val(),
+      foodChoice: $('#food-choice').val(),
+      meatChoice: $('#meat-choice').val(),
+      quantity: parseInt($('#quantity').val(), 10),
+      extra_no_tomato: $('#extra-no-tomato').is(':checked'),
+      extra_no_sauce: $('#extra-no-sauce').is(':checked'),
+      extra_with_cheese: $('#extra-with-cheese').is(':checked'),
+      extra_spicy: $('#extra-spicy').is(':checked'),
+      drinkChoice: $('#drink-choice').val(),
+    };
 
-      order.price = calculatePrice(order);
+    order.price = calculatePrice(order);
 
-      orders.push(order);
-      updateOrderPreview();
-    });
+    orders.push(order);
+    updateOrderPreview();
+  });
 
-    function calculatePrice(order) {
-      let basePrice = order.foodChoice === "Kebap" ? 6 : 6.5;
-      let extras = 0;
+  function calculatePrice(order) {
+    let basePrice = order.foodChoice === "Kebap" ? 6 : 6.5;
+    let extras = 0;
 
-      if (order.extra_with_cheese) extras += 0.5;
-      if (order.drinkChoice === "Ayran") extras += 2;
+    if (order.extra_with_cheese) extras += 0.5;
+    if (order.drinkChoice === "Ayran") extras += 2;
 
-      return (basePrice + extras).toFixed(2);
-    }
+    return (basePrice + extras).toFixed(2);
+  }
 
-    function updateOrderPreview() {
-      const previewContainer = $('#order-preview');
-      previewContainer.empty();
+  function updateOrderPreview() {
+    const previewContainer = $('#order-preview');
+    previewContainer.empty();
 
-      if (orders.length === 0) {
-        previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
-        $('#submit-orders').hide();
-      } else {
-        let grandTotal = 0;
+    if (orders.length === 0) {
+      previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
+      $('#submit-orders').hide();
+    } else {
+      orders.forEach((order, index) => {
+        let extrasText = [];
+        if (order.extra_no_tomato) extrasText.push("Ohne Tomate");
+        if (order.extra_no_sauce) extrasText.push("Ohne Soße");
+        if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+0,50€)");
+        if (order.extra_spicy) extrasText.push("Mit Scharf");
+        if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
 
-        orders.forEach((order, index) => {
-          let extrasText = [];
-          if (order.extra_no_tomato) extrasText.push("Ohne Tomate");
-          if (order.extra_no_sauce) extrasText.push("Ohne Soße");
-          if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+0,50€)");
-          if (order.extra_spicy) extrasText.push("Mit Scharf");
-          if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
-
-          const total = (order.price * order.quantity).toFixed(2);
-          grandTotal += parseFloat(total);
-
-          previewContainer.append(`
-            <div class="order-item mb-2">
-              <p>
-                <strong>${order.foodChoice} (${order.meatChoice})</strong> – ${order.quantity}x<br>
-                Extras: ${extrasText.join(', ') || "Keine"}<br>
-                Einzelpreis: €${order.price} <br>
-                Gesamt: <strong>€${total}</strong>
-              </p>
-              <button class="btn btn-danger btn-sm delete-order" data-index="${index}">Löschen</button>
-            </div>
-          `);
-        });
+        const total = (order.price * order.quantity).toFixed(2);
 
         previewContainer.append(`
-          <div class="order-total mt-3">
-            Gesamtkosten: <span class="text-success">€${grandTotal.toFixed(2)}</span>
+          <div class="order-item mb-3">
+            <p><strong>${order.foodChoice} (${order.meatChoice}) - ${order.quantity}x</strong><br>
+            Extras: ${extrasText.join(', ') || "Keine"}<br>
+            Einzelpreis: €${order.price} - Gesamt: €${total}</p>
+            <button class="btn btn-danger btn-sm delete-order" data-index="${index}">Löschen</button>
           </div>
         `);
+      });
+      $('#submit-orders').show();
+    }
+  }
 
-        $('#submit-orders').show();
-      }
+  $(document).on('click', '.delete-order', function () {
+    const index = $(this).data('index');
+    orders.splice(index, 1);
+    updateOrderPreview();
+  });
+
+  // ✅ Nur wenn der Button geklickt wird, wird abgeschickt!
+  $('#submit-orders').on('click', function () {
+    if (orders.length === 0) {
+      alert('Keine Bestellungen vorhanden.');
+      return;
     }
 
-    $(document).on('click', '.delete-order', function () {
-      const index = $(this).data('index');
-      orders.splice(index, 1);
-      updateOrderPreview();
+    $.ajax({
+      url: 'https://haaslan.onrender.com/submit-orders',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(orders),
+      success: function () {
+        alert('Bestellung wurde erfolgreich abgeschickt!');
+        orders = [];
+        updateOrderPreview();
+      },
+      error: function () {
+        alert('Fehler beim Absenden der Bestellung.');
+      }
     });
+  });
 
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('active');
-      document.body.classList.toggle('sidebar-active');
-    }
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.body.classList.toggle('sidebar-active');
+  }
+</script>
 
-    function checkPassword() {
-      const password = document.getElementById('password-input').value;
-      if (password === "Freitag") {
-        document.getElementById('password-screen').style.display = 'none';
-      } else {
-        alert("Falsches Passwort.");
-      }
-    }
-  </script>
 </body>
 
 </html>
