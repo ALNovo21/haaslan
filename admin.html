@@ -5,70 +5,95 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin - Bestellübersicht</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .password-screen {
+      display: block;
+    }
+    .content {
+      display: none;
+    }
+  </style>
 </head>
 <body>
 
-  <div class="container my-5">
-    <h1 class="text-center mb-4">🍽️ Bestellübersicht</h1>
+  <!-- Passwort-Screen -->
+  <div class="password-screen text-center" id="password-screen">
+    <div class="container">
+      <h2>Admin Bereich - Passwort erforderlich</h2>
+      <input type="password" id="password" class="form-control my-3" placeholder="Passwort eingeben" />
+      <button class="btn btn-primary" onclick="checkPassword()">Zugang gewähren</button>
+    </div>
+  </div>
 
-    <!-- Einzelne Bestellungen -->
-    <h3>📋 Alle Bestellungen von heute</h3>
-    <table class="table table-striped">
-      <thead class="thead-light">
-        <tr>
-          <th>Vorname</th>
-          <th>Nachname</th>
-          <th>Menge</th>
-          <th>Gericht</th>
-          <th>Fleisch</th>
-          <th>Ohne Soße</th>
-          <th>Ohne Tomate</th>
-          <th>Mit Scharf</th>
-          <th>Mit Schafskäse</th>
-          <th>Getränk</th>
-          <th>Preis</th>
-          <th>Datum</th>
-          <th>Aktion</th>
-        </tr>
-      </thead>
-      <tbody id="order-list">
-        <!-- Hier kommen die Bestellungen rein -->
-      </tbody>
-    </table>
+  <!-- Admin Content -->
+  <div class="content" id="admin-content">
+    <div class="container my-5">
+      <h1 class="text-center mb-4">🍽️ Bestellübersicht</h1>
 
-    <!-- Artikel-Zusammenfassung -->
-    <h3 class="mt-5">📦 Artikel-Zusammenfassung</h3>
-    <table class="table table-striped">
-      <thead class="thead-light">
-        <tr>
-          <th>Gericht</th>
-          <th>Fleisch</th>
-          <th>Mit Schafskäse</th>
-          <th>Mit Scharf</th>
-          <th>Ohne Soße</th>
-          <th>Ohne Tomate</th>
-          <th>Gesamtmenge</th>
-        </tr>
-      </thead>
-      <tbody id="summary-list">
-        <!-- Artikel-Zusammenfassung -->
-      </tbody>
-    </table>
+      <!-- Einzelne Bestellungen -->
+      <h3>📋 Alle Bestellungen von heute</h3>
+      <table class="table table-striped">
+        <thead class="thead-light">
+          <tr>
+            <th>Vorname</th>
+            <th>Nachname</th>
+            <th>Menge</th>
+            <th>Gericht</th>
+            <th>Fleisch</th>
+            <th>Ohne Soße</th>
+            <th>Ohne Tomate</th>
+            <th>Mit Scharf</th>
+            <th>Mit Schafskäse</th>
+            <th>Getränk</th>
+            <th>Preis</th>
+            <th>Datum</th>
+            <th>Aktion</th>
+          </tr>
+        </thead>
+        <tbody id="order-list">
+          <!-- Hier kommen die Bestellungen rein -->
+        </tbody>
+      </table>
 
-    <!-- Getränke-Zusammenfassung -->
-    <h3 class="mt-4">🥤 Getränke-Zusammenfassung</h3>
-    <table class="table table-striped">
-      <thead class="thead-light">
-        <tr>
-          <th>Getränk</th>
-          <th>Anzahl</th>
-        </tr>
-      </thead>
-      <tbody id="drink-summary-list">
-        <!-- Getränke-Zusammenfassung -->
-      </tbody>
-    </table>
+      <!-- Gesamtpreis -->
+      <div id="total-price-container" class="text-right">
+        <h4>Gesamtpreis aller Bestellungen: <span id="total-price">0 €</span></h4>
+      </div>
 
+      <!-- Artikel-Zusammenfassung -->
+      <h3 class="mt-5">📦 Artikel-Zusammenfassung</h3>
+      <table class="table table-striped">
+        <thead class="thead-light">
+          <tr>
+            <th>Gericht</th>
+            <th>Fleisch</th>
+            <th>Mit Schafskäse</th>
+            <th>Mit Scharf</th>
+            <th>Ohne Soße</th>
+            <th>Ohne Tomate</th>
+            <th>Gesamtmenge</th>
+          </tr>
+        </thead>
+        <tbody id="summary-list">
+          <!-- Artikel-Zusammenfassung -->
+        </tbody>
+      </table>
+
+      <!-- Getränke-Zusammenfassung -->
+      <h3 class="mt-4">🥤 Getränke-Zusammenfassung</h3>
+      <table class="table table-striped">
+        <thead class="thead-light">
+          <tr>
+            <th>Getränk</th>
+            <th>Anzahl</th>
+          </tr>
+        </thead>
+        <tbody id="drink-summary-list">
+          <!-- Getränke-Zusammenfassung -->
+        </tbody>
+      </table>
+
+    </div>
   </div>
 
   <!-- jQuery -->
@@ -87,6 +112,18 @@
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const year = d.getFullYear().toString().slice(2);
       return `${day}.${month}.${year}`;
+    }
+
+    // Passwortüberprüfung
+    function checkPassword() {
+      const password = document.getElementById("password").value;
+      if (password === "Haaslan") {
+        document.getElementById("password-screen").style.display = "none";
+        document.getElementById("admin-content").style.display = "block";
+        fetchOrders(); // Bestellungen laden, wenn Zugriff gewährt wird
+      } else {
+        alert("Falsches Passwort. Bitte versuche es erneut.");
+      }
     }
 
     // Bestellung löschen
@@ -112,6 +149,7 @@
           const orderList = $('#order-list');
           const summaryList = $('#summary-list');
           const drinkSummaryList = $('#drink-summary-list');
+          let totalPrice = 0;
 
           orderList.empty();
           summaryList.empty();
@@ -146,6 +184,9 @@
                 </td>
               </tr>
             `);
+
+            // Gesamtpreis berechnen
+            totalPrice += parseFloat(order.total_price);
 
             // === Zusammenfassungen ===
 
@@ -207,6 +248,9 @@
               </tr>
             `);
           });
+
+          // Gesamtpreis anzeigen
+          $('#total-price').text(`${totalPrice.toFixed(2)} €`);
         },
         error: function () {
           alert('Fehler beim Abrufen der Bestellungen.');
@@ -216,13 +260,9 @@
 
     // Seite laden
     $(document).ready(function () {
-      fetchOrders();
-    });
-
-    // Bestellung löschen
-    $(document).on('click', '.delete-order', function () {
-      const orderId = $(this).data('id');
-      deleteOrder(orderId);
+      // Wenn Passwort eingegeben, wird die Passwort-Screen ausgeblendet
+      document.getElementById("password-screen").style.display = "block";
+      document.getElementById("admin-content").style.display = "none";
     });
   </script>
 
