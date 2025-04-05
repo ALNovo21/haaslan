@@ -165,7 +165,8 @@
         success: function () {
           fetchOrders(); // Nach dem Löschen neu laden
         },
-        error: function () {
+        error: function (err) {
+          console.log(err); // Fehlerausgabe in der Konsole
           alert('Fehler beim Löschen der Bestellung.');
         }
       });
@@ -301,6 +302,12 @@
         document.getElementById("password-screen").style.display = "block";
         document.getElementById("admin-content").style.display = "none";
       }
+
+      // Event Listener für die Löschen-Buttons
+      $(document).on('click', '.delete-order', function() {
+        const orderId = $(this).data('id');
+        deleteOrder(orderId);
+      });
     });
   </script>
 
