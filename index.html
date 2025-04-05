@@ -11,7 +11,6 @@
 
   <!-- Custom CSS -->
   <style>
-    /* Sidebar Styling */
     .sidebar {
       height: 100%;
       width: 250px;
@@ -41,7 +40,6 @@
       left: 0;
     }
 
-    /* The main content area should shift when the sidebar is open */
     body {
       transition: margin-left 0.3s;
     }
@@ -50,7 +48,6 @@
       margin-left: 250px;
     }
 
-    /* Hamburger Menu */
     #sidebar-toggle {
       display: none;
     }
@@ -69,7 +66,6 @@
       }
     }
 
-    /* Header */
     .header {
       display: flex;
       justify-content: space-between;
@@ -89,7 +85,6 @@
       color: white;
     }
 
-    /* Card Styles */
     .card {
       border-radius: 15px;
     }
@@ -98,7 +93,6 @@
       margin-bottom: 15px;
     }
 
-    /* Responsive Design */
     .form-control {
       border-radius: 10px;
     }
@@ -157,6 +151,10 @@
                 <option value="Kalb">Kalb</option>
               </select>
             </div>
+            <div class="form-group">
+              <label for="quantity">Menge</label>
+              <input type="number" class="form-control" id="quantity" value="1" min="1" required>
+            </div>
 
             <div class="form-group">
               <label>Zusätzliche Optionen</label><br>
@@ -186,10 +184,7 @@
               </select>
             </div>
 
-            <div class="form-group">
-              <label for="quantity">Menge</label>
-              <input type="number" class="form-control" id="quantity" value="1" min="1" required>
-            </div>
+
 
             <button type="submit" class="btn btn-primary">Bestellung hinzufügen</button>
           </form>
@@ -214,18 +209,15 @@
   <script>
     let orders = [];
 
-    // Bestellformular absenden (hinzufügen)
     $('#order-form').on('submit', function (event) {
       event.preventDefault();
 
-      // Bestellungsdaten sammeln
       const order = {
         firstname: $('#firstname').val(),
         lastname: $('#lastname').val(),
         foodChoice: $('#food-choice').val(),
         meatChoice: $('#meat-choice').val(),
-        quantity: $('#quantity').val(),
-        price: calculatePrice(),
+        quantity: parseInt($('#quantity').val(), 10),
         extra_no_tomato: $('#extra-no-tomato').is(':checked'),
         extra_no_sauce: $('#extra-no-sauce').is(':checked'),
         extra_with_cheese: $('#extra-with-cheese').is(':checked'),
@@ -233,25 +225,22 @@
         drinkChoice: $('#drink-choice').val(),
       };
 
-      // Bestellung in das Array hinzufügen
+      order.price = calculatePrice(order);
+
       orders.push(order);
       updateOrderPreview();
     });
 
-    // Berechnet den Preis basierend auf den ausgewählten Optionen
-    function calculatePrice() {
-      let basePrice = $('#food-choice').val() === "Kebap" ? 6 : 6.5;
+    function calculatePrice(order) {
+      let basePrice = order.foodChoice === "Kebap" ? 6 : 6.5;
       let extras = 0;
-      if ($('#extra-with-cheese').is(':checked')) {
-        extras = 0.5;
-      }
-      if ($('#drink-choice').val() === "Ayran") {
-        extras += 2;
-      }
+
+      if (order.extra_with_cheese) extras += 0.5;
+      if (order.drinkChoice === "Ayran") extras += 2;
+
       return (basePrice + extras).toFixed(2);
     }
 
-    // Aktualisiert die Bestellvorschau
     function updateOrderPreview() {
       const previewContainer = $('#order-preview');
       previewContainer.empty();
@@ -261,44 +250,51 @@
         $('#submit-orders').hide();
       } else {
         orders.forEach((order, index) => {
+          let extrasText = [];
+          if (order.extra_no_tomato) extrasText.push("Ohne Tomate");
+          if (order.extra_no_sauce) extrasText.push("Ohne Soße");
+          if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+0,50€)");
+          if (order.extra_spicy) extrasText.push("Mit Scharf");
+          if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
+
           const total = (order.price * order.quantity).toFixed(2);
+
           previewContainer.append(`
-            <div class="order-item">
-              <p><strong>${order.foodChoice} (${order.meatChoice}) - ${order.quantity}x</strong> - Preis: €${order.price} - Gesamt: €${total}</p>
+            <div class="order-item mb-3">
+              <p><strong>${order.foodChoice} (${order.meatChoice}) - ${order.quantity}x</strong><br>
+              Extras: ${extrasText.join(', ') || "Keine"}<br>
+              Einzelpreis: €${order.price} - Gesamt: €${total}</p>
               <button class="btn btn-danger btn-sm delete-order" data-index="${index}">Löschen</button>
             </div>
           `);
         });
-        $('#submit-orders').show(); // Zeige den Absende-Button
+        $('#submit-orders').show();
       }
     }
 
-    // Löschen einer Bestellung
     $(document).on('click', '.delete-order', function () {
       const index = $(this).data('index');
-      orders.splice(index, 1); // Bestellung aus dem Array entfernen
-      updateOrderPreview(); // Vorschau aktualisieren
+      orders.splice(index, 1);
+      updateOrderPreview();
     });
 
-    // Bestellungen absenden
     $('#submit-orders').on('click', function () {
       $.ajax({
-        url: 'http://localhost:3000/submit-orders',  // Dein API-Endpunkt
+        url: 'http://localhost:3000/submit-orders',
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify(orders),  // Bestellungen als Array schicken
-        success: function (response) {
+        data: JSON.stringify(orders),
+        success: function () {
           alert('Bestellung wurde erfolgreich abgeschickt!');
-          orders = []; // Bestellungen zurücksetzen
-          updateOrderPreview(); // Vorschau zurücksetzen
+          orders = [];
+          updateOrderPreview();
         },
-        error: function (error) {
+        error: function () {
           alert('Fehler beim Absenden der Bestellung.');
         }
       });
     });
 
-    // Toggle Sidebar (Mobile)
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('active');
       document.body.classList.toggle('sidebar-active');

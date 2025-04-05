@@ -8,55 +8,123 @@
 </head>
 <body>
 
-  <div class="container">
-    <h1 class="text-center">Bestellübersicht</h1>
+  <div class="container my-5">
+    <h1 class="text-center mb-4">🍽️ Bestellübersicht</h1>
 
-    <!-- Tabelle für Bestellungen -->
-    <h2>Alle Bestellungen von heute</h2>
-    <table class="table table-bordered">
-      <thead>
+    <!-- Einzelne Bestellungen -->
+   <!-- Einzelne Bestellungen -->
+<h3>📋 Alle Bestellungen von heute</h3>
+<table class="table table-striped">
+  <thead class="thead-light">
+    <tr>
+      <th>Vorname</th>
+      <th>Nachname</th>
+      <th>Menge</th>
+      <th>Gericht</th>
+      <th>Fleisch</th>
+      <th>Ohne Soße</th>
+      <th>Ohne Tomate</th>
+      <th>Mit Scharf</th>
+      <th>Mit Schafskäse</th>
+      <th>Getränk</th>
+      <th>Preis</th>
+      <th>Datum</th>
+      <th>Aktion</th>
+    </tr>
+  </thead>
+  <tbody id="order-list">
+    <!-- Hier kommen die Bestellungen rein -->
+  </tbody>
+</table>
+
+
+    <!-- Artikel-Zusammenfassung -->
+    <h3 class="mt-5">📦 Artikel-Zusammenfassung</h3>
+    <table class="table table-striped">
+      <thead class="thead-light">
         <tr>
-          <th>Vorname</th>
-          <th>Nachname</th>
-          <th>Menge</th>
           <th>Gericht</th>
           <th>Fleisch</th>
+          <th>Mit Schafskäse</th>
+          <th>Mit Scharf</th>
           <th>Ohne Soße</th>
           <th>Ohne Tomate</th>
-          <th>Mit Scharf</th>
-          <th>Mit Schafskäse</th>
-          <th>Preis</th>
-          <th>Datum</th>
-          <th>Aktion</th>
+          <th>Gesamtmenge</th>
         </tr>
       </thead>
-      <tbody id="order-list">
-        <!-- Bestellungen werden hier angezeigt -->
+      <tbody id="summary-list">
+        <!-- Artikel-Zusammenfassung -->
       </tbody>
     </table>
-    
+
+    <!-- Getränke-Zusammenfassung -->
+    <h3 class="mt-4">🥤 Getränke-Zusammenfassung</h3>
+    <table class="table table-striped">
+      <thead class="thead-light">
+        <tr>
+          <th>Getränk</th>
+          <th>Anzahl</th>
+        </tr>
+      </thead>
+      <tbody id="drink-summary-list">
+        <!-- Getränke-Zusammenfassung -->
+      </tbody>
+    </table>
+
   </div>
 
+  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
   <script>
-    // Bestellungen vom Server abrufen und anzeigen
+    // Hilfsfunktion zur Datumsformatierung
+    function formatDate(date) {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return 'N/A';
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear().toString().slice(2);
+      return `${day}.${month}.${year}`;
+    }
+
+    // Bestellung löschen
+    function deleteOrder(orderId) {
+      $.ajax({
+        url: `http://localhost:3000/delete-order/${orderId}`,
+        method: 'DELETE',
+        success: function () {
+          fetchOrders(); // Nach dem Löschen neu laden
+        },
+        error: function () {
+          alert('Fehler beim Löschen der Bestellung.');
+        }
+      });
+    }
+
+    // Bestellungen und Zusammenfassungen laden
     function fetchOrders() {
       $.ajax({
-        url: 'http://localhost:3000/get-orders',  // Dein API-Endpunkt zum Abrufen der Bestellungen
+        url: 'http://localhost:3000/get-orders',
         method: 'GET',
-        success: function(data) {
+        success: function (data) {
           const orderList = $('#order-list');
-          orderList.empty();  // Bestehende Bestellungen leeren
-  
-          // Bestellungen anzeigen
+          const summaryList = $('#summary-list');
+          const drinkSummaryList = $('#drink-summary-list');
+
+          orderList.empty();
+          summaryList.empty();
+          drinkSummaryList.empty();
+
+          const summaryMap = {};
+          const drinkMap = {};
+
           data.orders.forEach(order => {
-            // Umwandlung von true/false zu "X" oder leer
             const ohneSoße = order.ohne_soße ? 'X' : '';
             const ohneTomate = order.ohne_tomate ? 'X' : '';
             const mitScharf = order.mit_scharf ? 'X' : '';
             const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
-            
+
+            // Einzelne Bestellung einfügen
             orderList.append(`
               <tr>
                 <td>${order.firstname}</td>
@@ -64,62 +132,93 @@
                 <td>${order.quantity}</td>
                 <td>${order.food_choice}</td>
                 <td>${order.meat_choice}</td>
-                <td>${ohneSoße}</td>  <!-- Extra Wunsch: ohne Soße -->
-                <td>${ohneTomate}</td> <!-- Extra Wunsch: ohne Tomate -->
-                <td>${mitScharf}</td>  <!-- Extra Wunsch: mit Scharf -->
-                <td>${mitSchafskäse}</td> <!-- Extra Wunsch: mit Schafskäse -->
+                <td>${ohneSoße}</td>
+                <td>${ohneTomate}</td>
+                <td>${mitScharf}</td>
+                <td>${mitSchafskäse}</td>
+                <td>${order.drink}</td>
                 <td>${order.total_price} €</td>
-                <td>${formatDate(order.created_at)}</td> <!-- Datum formatieren -->
+                <td>${formatDate(order.created_at)}</td>
                 <td>
                   <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
                 </td>
               </tr>
             `);
+
+            // === Zusammenfassungen ===
+
+            // Artikel-Zusammenfassung
+            const key = [
+              order.food_choice,
+              order.meat_choice,
+              order.mit_schafskäse ? 'mit Schafskäse' : '',
+              order.mit_scharf ? 'mit Scharf' : '',
+              order.ohne_soße ? 'ohne Soße' : '',
+              order.ohne_tomate ? 'ohne Tomate' : ''
+            ].join('|');
+
+            if (!summaryMap[key]) {
+              summaryMap[key] = {
+                food: order.food_choice,
+                meat: order.meat_choice,
+                mit_schafskäse: order.mit_schafskäse,
+                mit_scharf: order.mit_scharf,
+                ohne_soße: order.ohne_soße,
+                ohne_tomate: order.ohne_tomate,
+                quantity: 0
+              };
+            }
+
+            summaryMap[key].quantity += order.quantity;
+
+            // Getränke-Zusammenfassung
+            const drink = order.drink?.trim();
+            if (drink) {
+              if (!drinkMap[drink]) {
+                drinkMap[drink] = 0;
+              }
+              drinkMap[drink] += order.quantity;
+            }
+          });
+
+          // Artikel-Zusammenfassung anzeigen
+          Object.values(summaryMap).forEach(entry => {
+            summaryList.append(`
+              <tr>
+                <td>${entry.food}</td>
+                <td>${entry.meat}</td>
+                <td>${entry.mit_schafskäse ? 'X' : ''}</td>
+                <td>${entry.mit_scharf ? 'X' : ''}</td>
+                <td>${entry.ohne_soße ? 'X' : ''}</td>
+                <td>${entry.ohne_tomate ? 'X' : ''}</td>
+                <td>${entry.quantity}</td>
+              </tr>
+            `);
+          });
+
+          // Getränke-Zusammenfassung anzeigen
+          Object.entries(drinkMap).forEach(([drink, count]) => {
+            drinkSummaryList.append(`
+              <tr>
+                <td>${drink}</td>
+                <td>${count}</td>
+              </tr>
+            `);
           });
         },
-        error: function(error) {
+        error: function () {
           alert('Fehler beim Abrufen der Bestellungen.');
         }
       });
     }
-  
-    // Bestellung löschen
-    function deleteOrder(orderId) {
-      $.ajax({
-        url: `http://localhost:3000/delete-order/${orderId}`,  // API-Endpunkt zum Löschen einer Bestellung
-        method: 'DELETE',
-        success: function(response) {
-          alert('Bestellung gelöscht!');
-          fetchOrders();  // Nach dem Löschen Bestellungen erneut laden
-        },
-        error: function(error) {
-          alert('Fehler beim Löschen der Bestellung.');
-        }
-      });
-    }
-  
-    // Datum formatieren auf DD.MM.YY
-    function formatDate(date) {
-      const d = new Date(date);
 
-      // Überprüfen, ob das Datum ungültig ist
-      if (isNaN(d.getTime())) {
-        return 'N/A';  // Wenn das Datum ungültig ist, "N/A" zurückgeben
-      }
-
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear().toString().slice(2);  // Nur die letzten 2 Ziffern des Jahres
-      return `${day}.${month}.${year}`;
-    }
-  
-    // Wenn die Seite geladen wird, Bestellungen abrufen und anzeigen
-    $(document).ready(function() {
+    // Seite laden
+    $(document).ready(function () {
       fetchOrders();
     });
-  
-    // Löschen einer Bestellung bei Klick auf den Löschen-Button
-    $(document).on('click', '.delete-order', function() {
+
+    // Bestellung löschen
+    $(document).on('click', '.delete-order', function () {
       const orderId = $(this).data('id');
       deleteOrder(orderId);
     });
