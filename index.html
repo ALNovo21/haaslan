@@ -3,71 +3,180 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bestellung aufgeben</title>
+  <title>HPC - Haaslan Product Configurator</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
   <div class="container">
-    <h1 class="text-center">Bestellung aufgeben</h1>
+    <h1 class="text-center">HPC - Haaslan Product Configurator</h1>
 
     <form id="order-form">
-      <div class="form-group">
-        <label for="firstname">Vorname</label>
-        <input type="text" class="form-control" id="firstname" required>
-      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <!-- Persönliche Angaben -->
+          <div class="form-group">
+            <label for="firstname">Vorname</label>
+            <input type="text" class="form-control" id="firstname" required>
+          </div>
 
-      <div class="form-group">
-        <label for="lastname">Nachname</label>
-        <input type="text" class="form-control" id="lastname" required>
-      </div>
+          <div class="form-group">
+            <label for="lastname">Nachname</label>
+            <input type="text" class="form-control" id="lastname" required>
+          </div>
 
-      <div class="form-group">
-        <label for="food-choice">Gericht</label>
-        <select class="form-control" id="food-choice" required>
-          <option value="Pizza">Pizza</option>
-          <option value="Burger">Burger</option>
-        </select>
-      </div>
+          <!-- Gericht Auswahl -->
+          <div class="form-group">
+            <label for="food-choice">Gericht</label>
+            <select class="form-control" id="food-choice" required>
+              <option value="Kebap">Kebap (6€)</option>
+              <option value="Dürum">Dürum (6,50€)</option>
+            </select>
+          </div>
 
-      <div class="form-group">
-        <label for="quantity">Menge</label>
-        <input type="number" class="form-control" id="quantity" required>
-      </div>
+          <!-- Fleisch Auswahl -->
+          <div class="form-group">
+            <label for="meat-choice">Fleisch</label>
+            <select class="form-control" id="meat-choice" required>
+              <option value="Huhn">Huhn</option>
+              <option value="Kalb">Kalb</option>
+            </select>
+          </div>
 
-      <div class="form-group">
-        <label for="price">Preis</label>
-        <input type="number" step="0.01" class="form-control" id="price" required>
-      </div>
+          <!-- Zusätzliche Optionen -->
+          <div class="form-group">
+            <label>Zusätzliche Optionen</label><br>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="no-tomato" value="no-tomato">
+              <label class="form-check-label" for="no-tomato">Ohne Tomate</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="no-sauce" value="no-sauce">
+              <label class="form-check-label" for="no-sauce">Ohne Soße</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="spicy" value="spicy">
+              <label class="form-check-label" for="spicy">Mit Scharf</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="cheese" value="cheese">
+              <label class="form-check-label" for="cheese">Mit Schafskäse (+0,50€)</label>
+            </div>
+          </div>
 
-      <button type="submit" class="btn btn-primary">Bestellung abschicken</button>
+          <!-- Getränke Auswahl -->
+          <div class="form-group">
+            <label for="drink-choice">Getränk (optional)</label>
+            <select class="form-control" id="drink-choice">
+              <option value="">Kein Getränk</option>
+              <option value="Ayran">Ayran (2€)</option>
+            </select>
+          </div>
+
+          <!-- Menge Eingabe -->
+          <div class="form-group">
+            <label for="quantity">Menge</label>
+            <input type="number" class="form-control" id="quantity" value="1" min="1" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Bestellung hinzufügen</button>
+        </div>
+
+        <div class="col-md-6">
+          <!-- Vorschau der Bestellung -->
+          <h3>Bestellvorschau</h3>
+          <div id="order-preview" class="border p-3">
+            <p>Keine Bestellungen hinzugefügt.</p>
+          </div>
+          <!-- Absende-Button -->
+          <button id="submit-orders" class="btn btn-success mt-3" style="display:none;">Bestellung abschicken</button>
+        </div>
+      </div>
     </form>
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
   <script>
-    // Bestellformular absenden
-    $('#order-form').on('submit', function(event) {
-      event.preventDefault();  // Verhindert das Neuladen der Seite
+    let orders = [];
 
+    // Bestellformular absenden (hinzufügen)
+    $('#order-form').on('submit', function(event) {
+      event.preventDefault();
+
+      // Bestellungsdaten sammeln
       const order = {
         firstname: $('#firstname').val(),
         lastname: $('#lastname').val(),
         foodChoice: $('#food-choice').val(),
+        meatChoice: $('#meat-choice').val(),
         quantity: $('#quantity').val(),
-        price: $('#price').val(),
+        price: calculatePrice(),
+        noTomato: $('#no-tomato').is(':checked'),
+        noSauce: $('#no-sauce').is(':checked'),
+        spicy: $('#spicy').is(':checked'),
+        cheese: $('#cheese').is(':checked'),
+        drinkChoice: $('#drink-choice').val(),
       };
 
-      // Bestellung an die API schicken
+      // Bestellung in das Array hinzufügen
+      orders.push(order);
+      updateOrderPreview();
+    });
+
+    // Berechnet den Preis basierend auf den ausgewählten Optionen
+    function calculatePrice() {
+      let basePrice = $('#food-choice').val() === "Kebap" ? 6 : 6.5;
+      let extras = 0;
+      if ($('#cheese').is(':checked')) {
+        extras = 0.5;
+      }
+      if ($('#drink-choice').val() === "Ayran") {
+        extras += 2;
+      }
+      return (basePrice + extras).toFixed(2);
+    }
+
+    // Aktualisiert die Bestellvorschau
+    function updateOrderPreview() {
+      const previewContainer = $('#order-preview');
+      previewContainer.empty();
+
+      if (orders.length === 0) {
+        previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
+        $('#submit-orders').hide();
+      } else {
+        orders.forEach((order, index) => {
+          const total = (order.price * order.quantity).toFixed(2);
+          previewContainer.append(`
+            <div class="order-item">
+              <p><strong>${order.foodChoice} (${order.meatChoice}) - ${order.quantity}x</strong> - Preis: €${order.price} - Gesamt: €${total}</p>
+              <button class="btn btn-danger btn-sm delete-order" data-index="${index}">Löschen</button>
+            </div>
+          `);
+        });
+        $('#submit-orders').show(); // Zeige den Absende-Button
+      }
+    }
+
+    // Löschen einer Bestellung
+    $(document).on('click', '.delete-order', function() {
+      const index = $(this).data('index');
+      orders.splice(index, 1); // Bestellung aus dem Array entfernen
+      updateOrderPreview(); // Vorschau aktualisieren
+    });
+
+    // Bestellungen absenden
+    $('#submit-orders').on('click', function() {
       $.ajax({
         url: 'http://localhost:3000/submit-orders',  // Dein API-Endpunkt
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify([order]),  // Bestellungen als Array schicken
+        data: JSON.stringify(orders),  // Bestellungen als Array schicken
         success: function(response) {
           alert('Bestellung wurde erfolgreich abgeschickt!');
-          $('#order-form')[0].reset();  // Formular zurücksetzen
+          orders = []; // Bestellungen zurücksetzen
+          updateOrderPreview(); // Vorschau zurücksetzen
         },
         error: function(error) {
           alert('Fehler beim Absenden der Bestellung.');
