@@ -260,14 +260,13 @@
           Object.values(summaryMap).forEach(entry => {
             summaryList.append(`
               <tr>
-                <td>${entry.quantity}</td>
                 <td>${entry.food}</td>
                 <td>${entry.meat}</td>
                 <td>${entry.mit_schafskäse ? 'X' : ''}</td>
                 <td>${entry.mit_scharf ? 'X' : ''}</td>
                 <td>${entry.ohne_soße ? 'X' : ''}</td>
                 <td>${entry.ohne_tomate ? 'X' : ''}</td>
-                
+                <td>${entry.quantity}</td>
               </tr>
             `);
           });
