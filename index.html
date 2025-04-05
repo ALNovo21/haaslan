@@ -279,7 +279,7 @@
     });
 
     $.ajax({
-  url: 'https://haaslan.onrender.com/submit-orders', // Das Backend ist hier auf Render
+  url: 'https://haaslan.onrender.com/submit-orders',
   method: 'POST',
   contentType: 'application/json',
   data: JSON.stringify(orders),
@@ -292,6 +292,7 @@
     alert('Fehler beim Absenden der Bestellung.');
   }
 });
+
 
 
     function toggleSidebar() {
