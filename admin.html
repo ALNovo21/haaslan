@@ -11,6 +11,8 @@
   <div class="container">
     <h1 class="text-center">Bestellübersicht</h1>
 
+    <!-- Tabelle für Bestellungen -->
+    <h2>Alle Bestellungen von heute</h2>
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -19,10 +21,25 @@
           <th>Gericht</th>
           <th>Menge</th>
           <th>Preis</th>
+          <th>Aktion</th>
         </tr>
       </thead>
       <tbody id="order-list">
         <!-- Bestellungen werden hier angezeigt -->
+      </tbody>
+    </table>
+
+    <!-- Tabelle für die Häufigkeit der Bestellungen -->
+    <h2>Bestellhäufigkeit pro Gericht</h2>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Gericht</th>
+          <th>Häufigkeit</th>
+        </tr>
+      </thead>
+      <tbody id="order-frequency-list">
+        <!-- Häufigkeit wird hier angezeigt -->
       </tbody>
     </table>
   </div>
@@ -40,7 +57,7 @@
           orderList.empty();  // Bestehende Bestellungen leeren
 
           // Bestellungen anzeigen
-          data.forEach(order => {
+          data.orders.forEach(order => {
             orderList.append(`
               <tr>
                 <td>${order.firstname}</td>
@@ -48,6 +65,7 @@
                 <td>${order.food_choice}</td>
                 <td>${order.quantity}</td>
                 <td>${order.price} €</td>
+                <td><button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button></td>
               </tr>
             `);
           });
@@ -58,9 +76,56 @@
       });
     }
 
-    // Wenn die Seite geladen wird, Bestellungen abrufen
+    // Häufigkeit der Bestellungen abrufen und anzeigen
+    function fetchOrderFrequency() {
+      $.ajax({
+        url: 'http://localhost:3000/get-order-frequency',  // Dein API-Endpunkt für die Bestellhäufigkeit
+        method: 'GET',
+        success: function(data) {
+          const orderFrequencyList = $('#order-frequency-list');
+          orderFrequencyList.empty();  // Bestehende Häufigkeit leeren
+
+          // Häufigkeit anzeigen
+          data.forEach(item => {
+            orderFrequencyList.append(`
+              <tr>
+                <td>${item.food_choice}</td>
+                <td>${item.count}</td>
+              </tr>
+            `);
+          });
+        },
+        error: function(error) {
+          alert('Fehler beim Abrufen der Bestellhäufigkeit.');
+        }
+      });
+    }
+
+    // Bestellung löschen
+    function deleteOrder(orderId) {
+      $.ajax({
+        url: `http://localhost:3000/delete-order/${orderId}`,  // API-Endpunkt zum Löschen einer Bestellung
+        method: 'DELETE',
+        success: function(response) {
+          alert('Bestellung gelöscht!');
+          fetchOrders();  // Nach dem Löschen Bestellungen erneut laden
+        },
+        error: function(error) {
+          alert('Fehler beim Löschen der Bestellung.');
+        }
+      });
+    }
+
+    // Wenn die Seite geladen wird, Bestellungen und Häufigkeit abrufen
     $(document).ready(function() {
       fetchOrders();
+      fetchOrderFrequency();
+    });
+
+    // Löschen einer Bestellung bei Klick auf den Löschen-Button
+    $(document).on('click', '.delete-order', function() {
+      const orderId = $(this).data('id');
+      deleteOrder(orderId);
     });
   </script>
 

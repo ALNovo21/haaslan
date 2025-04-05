@@ -1,107 +1,221 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HPC - Haaslan Product Configurator</title>
+
+  <!-- Bootstrap CSS -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <style>
+    /* Sidebar Styling */
+    .sidebar {
+      height: 100%;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: -250px;
+      background-color: #343a40;
+      color: white;
+      padding: 20px;
+      transition: 0.3s;
+      z-index: 1050;
+    }
+
+    .sidebar a {
+      color: white;
+      display: block;
+      padding: 10px 0;
+      text-decoration: none;
+      font-size: 18px;
+    }
+
+    .sidebar a:hover {
+      background-color: #575757;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    /* The main content area should shift when the sidebar is open */
+    body {
+      transition: margin-left 0.3s;
+    }
+
+    body.sidebar-active {
+      margin-left: 250px;
+    }
+
+    /* Hamburger Menu */
+    #sidebar-toggle {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      #sidebar-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        left: -250px;
+      }
+
+      body.sidebar-active {
+        margin-left: 0;
+      }
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background-color: #007bff;
+      color: white;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .header h1 {
+      font-size: 24px;
+    }
+
+    .header .btn {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    /* Card Styles */
+    .card {
+      border-radius: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    /* Responsive Design */
+    .form-control {
+      border-radius: 10px;
+    }
+
+    .order-preview {
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      padding: 15px;
+    }
+  </style>
 </head>
+
 <body>
 
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar">
+    <h4>Admin Menü</h4>
+    <a href="admin.html">Admin Ansicht</a>
+  </div>
+
+  <!-- Main content -->
   <div class="container">
-    <h1 class="text-center">HPC - Haaslan Product Configurator</h1>
+    <div class="header">
+      <h1>HPC - Haaslan Product Configurator</h1>
+      <button id="sidebar-toggle" class="btn" onclick="toggleSidebar()">☰ Admin</button>
+    </div>
 
-    <form id="order-form">
-      <div class="row">
-        <div class="col-md-6">
-          <!-- Persönliche Angaben -->
-          <div class="form-group">
-            <label for="firstname">Vorname</label>
-            <input type="text" class="form-control" id="firstname" required>
-          </div>
-
-          <div class="form-group">
-            <label for="lastname">Nachname</label>
-            <input type="text" class="form-control" id="lastname" required>
-          </div>
-
-          <!-- Gericht Auswahl -->
-          <div class="form-group">
-            <label for="food-choice">Gericht</label>
-            <select class="form-control" id="food-choice" required>
-              <option value="Kebap">Kebap (6€)</option>
-              <option value="Dürum">Dürum (6,50€)</option>
-            </select>
-          </div>
-
-          <!-- Fleisch Auswahl -->
-          <div class="form-group">
-            <label for="meat-choice">Fleisch</label>
-            <select class="form-control" id="meat-choice" required>
-              <option value="Huhn">Huhn</option>
-              <option value="Kalb">Kalb</option>
-            </select>
-          </div>
-
-          <!-- Zusätzliche Optionen -->
-          <div class="form-group">
-            <label>Zusätzliche Optionen</label><br>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="extra-no-tomato" value="true">
-              <label class="form-check-label" for="extra-no-tomato">Ohne Tomate</label>
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <!-- Bestellformular -->
+        <div class="card p-4">
+          <h3>Bestellung hinzufügen</h3>
+          <form id="order-form">
+            <div class="form-group">
+              <label for="firstname">Vorname</label>
+              <input type="text" class="form-control" id="firstname" required>
             </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="extra-no-sauce" value="true">
-              <label class="form-check-label" for="extra-no-sauce">Ohne Soße</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="extra-with-cheese" value="true">
-              <label class="form-check-label" for="extra-with-cheese">Mit Schafskäse</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="extra-spicy" value="true">
-              <label class="form-check-label" for="extra-spicy">Mit Scharf</label>
-            </div>
-          </div>
-          
-          <!-- Getränke Auswahl -->
-          <div class="form-group">
-            <label for="drink-choice">Getränk (optional)</label>
-            <select class="form-control" id="drink-choice">
-              <option value="">Kein Getränk</option>
-              <option value="Ayran">Ayran (2€)</option>
-            </select>
-          </div>
 
-          <!-- Menge Eingabe -->
-          <div class="form-group">
-            <label for="quantity">Menge</label>
-            <input type="number" class="form-control" id="quantity" value="1" min="1" required>
-          </div>
+            <div class="form-group">
+              <label for="lastname">Nachname</label>
+              <input type="text" class="form-control" id="lastname" required>
+            </div>
 
-          <button type="submit" class="btn btn-primary">Bestellung hinzufügen</button>
+            <div class="form-group">
+              <label for="food-choice">Gericht</label>
+              <select class="form-control" id="food-choice" required>
+                <option value="Kebap">Kebap (6€)</option>
+                <option value="Dürum">Dürum (6,50€)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="meat-choice">Fleisch</label>
+              <select class="form-control" id="meat-choice" required>
+                <option value="Huhn">Huhn</option>
+                <option value="Kalb">Kalb</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Zusätzliche Optionen</label><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="extra-no-tomato">
+                <label class="form-check-label" for="extra-no-tomato">Ohne Tomate</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="extra-no-sauce">
+                <label class="form-check-label" for="extra-no-sauce">Ohne Soße</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="extra-with-cheese">
+                <label class="form-check-label" for="extra-with-cheese">Mit Schafskäse</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="extra-spicy">
+                <label class="form-check-label" for="extra-spicy">Mit Scharf</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="drink-choice">Getränk (optional)</label>
+              <select class="form-control" id="drink-choice">
+                <option value="">Kein Getränk</option>
+                <option value="Ayran">Ayran (2€)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="quantity">Menge</label>
+              <input type="number" class="form-control" id="quantity" value="1" min="1" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Bestellung hinzufügen</button>
+          </form>
         </div>
+      </div>
 
-        <div class="col-md-6">
-          <!-- Vorschau der Bestellung -->
+      <div class="col-md-6">
+        <!-- Bestellvorschau -->
+        <div class="order-preview">
           <h3>Bestellvorschau</h3>
-          <div id="order-preview" class="border p-3">
+          <div id="order-preview">
             <p>Keine Bestellungen hinzugefügt.</p>
           </div>
-          <!-- Absende-Button -->
           <button id="submit-orders" class="btn btn-success mt-3" style="display:none;">Bestellung abschicken</button>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 
+  <!-- JavaScript -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-
   <script>
     let orders = [];
 
     // Bestellformular absenden (hinzufügen)
-    $('#order-form').on('submit', function(event) {
+    $('#order-form').on('submit', function (event) {
       event.preventDefault();
 
       // Bestellungsdaten sammeln
@@ -140,7 +254,7 @@
     // Aktualisiert die Bestellvorschau
     function updateOrderPreview() {
       const previewContainer = $('#order-preview');
-      previewContainer.empty();  // Hier leeren wir die Vorschau sofort
+      previewContainer.empty();
 
       if (orders.length === 0) {
         previewContainer.append('<p>Keine Bestellungen hinzugefügt.</p>');
@@ -160,36 +274,36 @@
     }
 
     // Löschen einer Bestellung
-    $(document).on('click', '.delete-order', function() {
+    $(document).on('click', '.delete-order', function () {
       const index = $(this).data('index');
       orders.splice(index, 1); // Bestellung aus dem Array entfernen
       updateOrderPreview(); // Vorschau aktualisieren
     });
 
     // Bestellungen absenden
-    $('#submit-orders').on('click', function() {
-      const submitButton = $(this);
-      submitButton.prop('disabled', true); // Deaktiviert den Button, um doppelte Klicks zu verhindern
-
+    $('#submit-orders').on('click', function () {
       $.ajax({
         url: 'http://localhost:3000/submit-orders',  // Dein API-Endpunkt
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(orders),  // Bestellungen als Array schicken
-        success: function(response) {
+        success: function (response) {
           alert('Bestellung wurde erfolgreich abgeschickt!');
           orders = []; // Bestellungen zurücksetzen
           updateOrderPreview(); // Vorschau zurücksetzen
         },
-        error: function(error) {
+        error: function (error) {
           alert('Fehler beim Absenden der Bestellung.');
-        },
-        complete: function() {
-          submitButton.prop('disabled', false); // Aktiviert den Button wieder, wenn die Antwort kommt
         }
       });
     });
-  </script>
 
+    // Toggle Sidebar (Mobile)
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.body.classList.toggle('sidebar-active');
+    }
+  </script>
 </body>
+
 </html>
