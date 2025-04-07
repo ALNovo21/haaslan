@@ -115,32 +115,31 @@
         </tbody>
       </table>
 
-
-     <!-- Alle Bestellungen -->
-<h3>Bestellung Archiv</h3>
-<table class="table table-striped">
-  <thead class="thead-light">
-    <tr>
-      <th>Vorname</th>
-      <th>Nachname</th>
-      <th>Menge</th>
-      <th>Gericht</th>
-      <th>Fleisch</th>
-      <th>Ohne Soße</th>
-      <th>Ohne Tomate</th>
-      <th>Mit Scharf</th>
-      <th>Mit Schafskäse</th>
-      <th>Getränk</th>
-      <th>Preis</th>
-      <th>Datum</th>
-      <th>Aktion</th>
-      <th>Bezahlt</th>
-    </tr>
-  </thead>
-  <tbody id="order-list">
-    <!-- Hier kommen die Bestellungen rein -->
-  </tbody>
-</table>
+<!-- Archiv -->
+      <table id="order-archive-list" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Vorname</th>
+            <th>Nachname</th>
+            <th>Menge</th>
+            <th>Speise</th>
+            <th>Fleischwahl</th>
+            <th>Ohne Soße</th>
+            <th>Ohne Tomate</th>
+            <th>Mit Scharf</th>
+            <th>Mit Schafskäse</th>
+            <th>Getränk</th>
+            <th>Gesamtpreis</th>
+            <th>Bestelldatum</th>
+            <th>Aktionen</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Hier werden die Bestellungen eingefügt -->
+        </tbody>
+      </table>
+      
 
     </div>
   </div>
@@ -337,6 +336,64 @@ function fetchOrders() {
     
   });
 }
+
+// Bestellungen und Zusammenfassungen für das Archiv laden
+function fetchAllOrders() {
+  $.ajax({
+    url: `${backendUrl}/get-all-orders`,  // Neuer API-Endpunkt
+    method: 'GET',
+    success: function (data) {
+      const orderList = $('#order-list');
+      orderList.empty();
+
+      let totalPrice = 0;
+
+      // Iteriere über die Bestellungen
+      data.orders.forEach(order => {
+        const ohneSoße = order.ohne_soße ? 'X' : '';
+        const ohneTomate = order.ohne_tomate ? 'X' : '';
+        const mitScharf = order.mit_scharf ? 'X' : '';
+        const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
+
+        orderList.append(`
+          <tr>
+            <td>${order.firstname}</td>
+            <td>${order.lastname}</td>
+            <td>${order.quantity}</td>
+            <td>${order.food_choice}</td>
+            <td>${order.meat_choice}</td>
+            <td>${ohneSoße}</td>
+            <td>${ohneTomate}</td>
+            <td>${mitScharf}</td>
+            <td>${mitSchafskäse}</td>
+            <td>${order.drink}</td>
+            <td>${order.total_price} €</td>
+            <td>${order.created_at}</td>
+            <td>
+              <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
+              <br/>
+              ${!order.paid 
+                ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` 
+                : '<span class="badge badge-success mt-1">Bezahlt</span>'
+              }
+            </td>
+            <td>
+              ${order.paid === true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
+            </td>
+          </tr>
+        `);
+
+        totalPrice += parseFloat(order.total_price);
+      });
+
+      $('#total-price').text(`${totalPrice.toFixed(2)} €`);
+    },
+    error: function () {
+      alert('Fehler beim Abrufen der Bestellungen.');
+    }
+  });
+}
+
 
     // Seite laden
     $(document).ready(function () {
