@@ -5,6 +5,11 @@ const cors = require('cors'); // CORS-Modul importieren
 const app = express();
 const port = process.env.PORT || 3000;  // Falls PORT nicht gesetzt ist, nutze 3000 für lokale Entwicklung
 
+// Beispiel: Express Server (app.js oder server.js)
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
 // PostgreSQL-Verbindung
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,  // Der Verbindungsstring wird über die Umgebungsvariable gesetzt
@@ -15,8 +20,8 @@ const pool = new Pool({
 
 // CORS-Konfiguration
 const corsOptions = {
-  origin: 'https://alnovo21.github.io', // Ersetze dies mit der tatsächlichen Frontend-URL
-  methods: 'GET,POST,PUT,DELETE', // Erlaube die benötigten HTTP-Methoden
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Frontend-URL aus Umgebungsvariable oder lokal
+  methods: 'GET,POST,DELETE', // Erlaube nur bestimmte HTTP-Methoden
 };
 
 app.use(cors(corsOptions));  // CORS für bestimmte Ursprünge aktivieren
@@ -29,7 +34,7 @@ app.get('/get-orders', async (req, res) => {
   try {
     const query = `
       SELECT id, firstname, lastname, food_choice, meat_choice, quantity, drink, 
-             ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price, created_at, paid
+             ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price, paid, created_at
       FROM orders
       WHERE DATE(created_at) = CURRENT_DATE
     `;
@@ -107,35 +112,25 @@ app.delete('/delete-order/:id', async (req, res) => {
   }
 });
 
-// Route zum Markieren einer Bestellung als bezahlt
-app.put('/mark-as-paid/:id', async (req, res) => { // Methode auf PUT geändert
+// Route zum Aktualisieren des Zahlungsstatus einer Bestellung
+app.patch('/update-payment-status/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    await pool.query('UPDATE orders SET paid = true WHERE id = $1', [id]);
-    res.status(200).send('Bestellung als bezahlt markiert');
+    // Update-Query zum Setzen des Zahlungsstatus auf "bezahlt"
+    const result = await pool.query(
+      'UPDATE orders SET paid = TRUE WHERE id = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send('Bestellung nicht gefunden');
+    }
+
+    res.status(200).send(`Bestellung ${id} wurde als bezahlt markiert`);
   } catch (err) {
-    console.error('Fehler beim Markieren der Bestellung als bezahlt:', err);
-    res.status(500).send('Fehler beim Markieren der Bestellung als bezahlt');
-  }
-});
-
-// Route zum Abrufen aller Bestellungen
-app.get('/get-all-orders', async (req, res) => {
-  try {
-    const query = 'SELECT id, firstname, lastname, food_choice, meat_choice, quantity, drink, paid, total_price, created_at FROM orders';
-    const result = await pool.query(query);
-
-    const orders = result.rows.map(order => {
-      const createdAt = new Date(order.created_at);
-      const formattedDate = `${String(createdAt.getDate()).padStart(2, '0')}.${String(createdAt.getMonth() + 1).padStart(2, '0')}.${createdAt.getFullYear().toString().slice(2)}`;
-      return { ...order, created_at: formattedDate };
-    });
-
-    res.json({ orders });
-  } catch (err) {
-    console.error('Fehler beim Abrufen der Bestellungen:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Fehler beim Aktualisieren des Zahlungsstatus:', err);
+    res.status(500).send('Fehler beim Aktualisieren des Zahlungsstatus');
   }
 });
 
