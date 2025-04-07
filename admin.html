@@ -115,30 +115,33 @@
         </tbody>
       </table>
 
-      <!-- Bestell-Archiv -->
-      <h3 class="mt-5">📜 Bestellung Archiv</h3>
-      <table class="table table-striped">
-        <thead class="thead-light">
-          <tr>
-            <th>Vorname</th>
-            <th>Nachname</th>
-            <th>Menge</th>
-            <th>Gericht</th>
-            <th>Fleisch</th>
-            <th>Ohne Soße</th>
-            <th>Ohne Tomate</th>
-            <th>Mit Scharf</th>
-            <th>Mit Schafskäse</th>
-            <th>Getränk</th>
-            <th>Preis</th>
-            <th>Datum</th>
-            <th>Bezahlt</th>
-          </tr>
-        </thead>
-        <tbody id="archive-list">
-          <!-- Hier kommen die Archiv-Bestellungen rein -->
-        </tbody>
-      </table>
+
+     <!-- Alle Bestellungen -->
+<h3>Bestellung Archiv</h3>
+<table class="table table-striped">
+  <thead class="thead-light">
+    <tr>
+      <th>Vorname</th>
+      <th>Nachname</th>
+      <th>Menge</th>
+      <th>Gericht</th>
+      <th>Fleisch</th>
+      <th>Ohne Soße</th>
+      <th>Ohne Tomate</th>
+      <th>Mit Scharf</th>
+      <th>Mit Schafskäse</th>
+      <th>Getränk</th>
+      <th>Preis</th>
+      <th>Datum</th>
+      <th>Aktion</th>
+      <th>Bezahlt</th>
+    </tr>
+  </thead>
+  <tbody id="order-list">
+    <!-- Hier kommen die Bestellungen rein -->
+  </tbody>
+</table>
+
     </div>
   </div>
 
@@ -186,150 +189,154 @@
         }
       });
     }
-
     // Bestellung als bezahlt markieren
-    function markOrderAsPaid(orderId) {
-      $.ajax({
-        url: `${backendUrl}/mark-paid/${orderId}`,
-        method: 'PATCH',
-        success: function () {
-          fetchOrders(); // Bestellungen neu laden
-        },
-        error: function (err) {
-          console.error(err);
-          alert('Fehler beim Aktualisieren des Bezahlstatus.');
-        }
-      });
+function markOrderAsPaid(orderId) {
+  $.ajax({
+    url: `${backendUrl}/mark-paid/${orderId}`,
+    method: 'PATCH',
+    success: function () {
+      fetchOrders(); // Bestellungen neu laden
+    },
+    error: function (err) {
+      console.error(err);
+      alert('Fehler beim Aktualisieren des Bezahlstatus.');
     }
+  });
+}
 
-    // Bestellungen und Zusammenfassungen laden
-    function fetchOrders() {
-      $.ajax({
-        url: `${backendUrl}/get-orders`,
-        method: 'GET',
-        success: function (data) {
-          const orderList = $('#order-list');
-          const archiveList = $('#archive-list');  // Archiv Tabelle
-          const summaryList = $('#summary-list');
-          const drinkSummaryList = $('#drink-summary-list');
-          let totalPrice = 0;
 
-          orderList.empty();
-          archiveList.empty();  // Leert die Archiv-Tabelle
-          summaryList.empty();
-          drinkSummaryList.empty();
+  // Bestellungen und Zusammenfassungen laden
+function fetchOrders() {
+  $.ajax({
+    url: `${backendUrl}/get-orders`,
+    method: 'GET',
+    success: function (data) {
+      const orderList = $('#order-list');
+      const archiveList = $('#archive-list');  // Hier fügen wir die Archive-Tabelle hinzu
+      const summaryList = $('#summary-list');
+      const drinkSummaryList = $('#drink-summary-list');
+      let totalPrice = 0;
 
-          const summaryMap = {};
-          const drinkMap = {};
+      orderList.empty();
+      archiveList.empty();  // Leert die Archiv-Tabelle
+      summaryList.empty();
+      drinkSummaryList.empty();
 
-          // Iteriere über die Bestellungen
-          data.orders.forEach(order => {
-            const ohneSoße = order.ohne_soße ? 'X' : '';
-            const ohneTomate = order.ohne_tomate ? 'X' : '';
-            const mitScharf = order.mit_scharf ? 'X' : '';
-            const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
+      const summaryMap = {};
+      const drinkMap = {};
 
-            // **Normale Bestellungen** (Lösch-Buttons für aktuelle Bestellungen)
-            orderList.append(`
-              <tr>
-                <td>${order.firstname}</td>
-                <td>${order.lastname}</td>
-                <td>${order.quantity}</td>
-                <td>${order.food_choice}</td>
-                <td>${order.meat_choice}</td>
-                <td>${ohneSoße}</td>
-                <td>${ohneTomate}</td>
-                <td>${mitScharf}</td>
-                <td>${mitSchafskäse}</td>
-                <td>${order.drink}</td>
-                <td>${order.total_price} €</td>
-                <td>${order.created_at}</td>
-                <td>
-                  <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
-                  <br/>
-                  ${!order.paid 
-                    ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` 
-                    : '<span class="badge badge-success mt-1">Bezahlt</span>'
-                  }
-                </td>
-                <td>
-                  ${order.paid === true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
-                </td>
-              </tr>
-            `);
+      // Iteriere über die Bestellungen
+      data.orders.forEach(order => {
+        const ohneSoße = order.ohne_soße ? 'X' : '';
+        const ohneTomate = order.ohne_tomate ? 'X' : '';
+        const mitScharf = order.mit_scharf ? 'X' : '';
+        const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
 
-            // Gesamtpreis berechnen
-            totalPrice += parseFloat(order.total_price);
-
-            // === Zusammenfassungen ===
-
-            // Artikel-Zusammenfassung
-            const key = [
-              order.food_choice,
-              order.meat_choice,
-              order.mit_schafskäse ? 'mit Schafskäse' : '',
-              order.mit_scharf ? 'mit Scharf' : '',
-              order.ohne_soße ? 'ohne Soße' : '',
-              order.ohne_tomate ? 'ohne Tomate' : ''
-            ].join('|');
-
-            if (!summaryMap[key]) {
-              summaryMap[key] = {
-                food: order.food_choice,
-                meat: order.meat_choice,
-                mit_schafskäse: order.mit_schafskäse,
-                mit_scharf: order.mit_scharf,
-                ohne_soße: order.ohne_soße,
-                ohne_tomate: order.ohne_tomate,
-                quantity: 0
-              };
-            }
-
-            summaryMap[key].quantity += order.quantity;
-
-            // Getränke-Zusammenfassung
-            const drink = order.drink?.trim();
-            if (drink) {
-              if (!drinkMap[drink]) {
-                drinkMap[drink] = 0;
+        // **Normale Bestellungen** (Lösch-Buttons für aktuelle Bestellungen)
+        orderList.append(`
+          <tr>
+            <td>${order.firstname}</td>
+            <td>${order.lastname}</td>
+            <td>${order.quantity}</td>
+            <td>${order.food_choice}</td>
+            <td>${order.meat_choice}</td>
+            <td>${ohneSoße}</td>
+            <td>${ohneTomate}</td>
+            <td>${mitScharf}</td>
+            <td>${mitSchafskäse}</td>
+            <td>${order.drink}</td>
+            <td>${order.total_price} €</td>
+            <td>${order.created_at}</td>
+            <td>
+              <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
+              <br/>
+              ${!order.paid 
+                ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` 
+                : '<span class="badge badge-success mt-1">Bezahlt</span>'
               }
-              drinkMap[drink] += order.quantity;
-            }
-          });
+            </td>
+            <td>
+              ${order.paid === true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
+            </td>
+          </tr>
+        `);
 
-          // Artikel-Zusammenfassung anzeigen
-          Object.values(summaryMap).forEach(entry => {
-            summaryList.append(`
-              <tr>
-                <td>${entry.food}</td>
-                <td>${entry.meat}</td>
-                <td>${entry.mit_schafskäse ? 'X' : ''}</td>
-                <td>${entry.mit_scharf ? 'X' : ''}</td>
-                <td>${entry.ohne_soße ? 'X' : ''}</td>
-                <td>${entry.ohne_tomate ? 'X' : ''}</td>
-                <td>${entry.quantity}</td>
-              </tr>
-            `);
-          });
+        
+        // Gesamtpreis berechnen
+        totalPrice += parseFloat(order.total_price);
 
-          // Getränke-Zusammenfassung anzeigen
-          Object.entries(drinkMap).forEach(([drink, count]) => {
-            drinkSummaryList.append(`
-              <tr>
-                <td>${drink}</td>
-                <td>${count}</td>
-              </tr>
-            `);
-          });
+        // === Zusammenfassungen ===
 
-          // Gesamtpreis anzeigen
-          $('#total-price').text(`${totalPrice.toFixed(2)} €`);
-        },
-        error: function () {
-          alert('Fehler beim Abrufen der Bestellungen.');
+        // Artikel-Zusammenfassung
+        const key = [
+          order.food_choice,
+          order.meat_choice,
+          order.mit_schafskäse ? 'mit Schafskäse' : '',
+          order.mit_scharf ? 'mit Scharf' : '',
+          order.ohne_soße ? 'ohne Soße' : '',
+          order.ohne_tomate ? 'ohne Tomate' : ''
+        ].join('|');
+
+        if (!summaryMap[key]) {
+          summaryMap[key] = {
+            food: order.food_choice,
+            meat: order.meat_choice,
+            mit_schafskäse: order.mit_schafskäse,
+            mit_scharf: order.mit_scharf,
+            ohne_soße: order.ohne_soße,
+            ohne_tomate: order.ohne_tomate,
+            quantity: 0
+          };
+        }
+
+        summaryMap[key].quantity += order.quantity;
+
+        // Getränke-Zusammenfassung
+        const drink = order.drink?.trim();
+        if (drink) {
+          if (!drinkMap[drink]) {
+            drinkMap[drink] = 0;
+          }
+          drinkMap[drink] += order.quantity;
         }
       });
+
+      // Artikel-Zusammenfassung anzeigen
+      Object.values(summaryMap).forEach(entry => {
+        summaryList.append(`
+          <tr>
+            <td>${entry.food}</td>
+            <td>${entry.meat}</td>
+            <td>${entry.mit_schafskäse ? 'X' : ''}</td>
+            <td>${entry.mit_scharf ? 'X' : ''}</td>
+            <td>${entry.ohne_soße ? 'X' : ''}</td>
+            <td>${entry.ohne_tomate ? 'X' : ''}</td>
+            <td>${entry.quantity}</td>
+          </tr>
+        `);
+      });
+
+      // Getränke-Zusammenfassung anzeigen
+      Object.entries(drinkMap).forEach(([drink, count]) => {
+        drinkSummaryList.append(`
+          <tr>
+            <td>${drink}</td>
+            <td>${count}</td>
+          </tr>
+        `);
+      });
+
+      // Gesamtpreis anzeigen
+      $('#total-price').text(`${totalPrice.toFixed(2)} €`);
+      
+      
+    },
+    error: function () {
+      alert('Fehler beim Abrufen der Bestellungen.');
     }
+    
+  });
+}
 
     // Seite laden
     $(document).ready(function () {
@@ -350,6 +357,25 @@
         deleteOrder(orderId);
       });
     });
+
+    $(document).on('click', '.mark-paid', function() {
+  const orderId = $(this).data('id');  // Du hast die orderId, aber kein `order.paid`
+  
+  $.ajax({
+    url: `${backendUrl}/mark-paid/${orderId}`,
+    method: 'PATCH',
+    success: function () {
+      fetchOrders(); // Tabelle neu laden nach erfolgreicher Markierung
+    },
+    error: function (err) {
+      console.log(err);
+      alert('Fehler beim Aktualisieren des Zahlungsstatus.');
+    }
+  });
+});
+
+
   </script>
+
 </body>
 </html>
