@@ -220,17 +220,21 @@ function fetchOrders() {
             <td>${order.drink}</td>
             <td>${order.total_price} €</td>
             <td>${order.created_at}</td>
-            <td>
-              <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
-              <br/>
-              ${!order.paid 
-                ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` 
-                : '<span class="badge badge-success mt-1">Bezahlt</span>'
-              }
-            </td>
-            <td>
-              ${order.paid === true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
-            </td>
+           <td>
+  <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
+  <br/>
+  ${order.paid === "Nicht Bezahlt" 
+    ? `<button class="btn btn-primary btn-sm mark-paid mt-1" data-id="${order.id}">Markiere als Bezahlt</button>` 
+    : '<span class="badge badge-success mt-1">Bezahlt</span>'
+  }
+</td>
+<td>
+  ${order.paid === "Nicht Bezahlt" 
+    ? '<span style="color: red; font-size: 20px;" title="Offen">●</span>' 
+    : '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>'
+  }
+</td>
+
           </tr>
         `);
 
