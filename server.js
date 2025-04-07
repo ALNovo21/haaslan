@@ -112,6 +112,20 @@ app.delete('/delete-order/:id', async (req, res) => {
   }
 });
 
+// Route zum Aktualisieren des "paid"-Status einer Bestellung
+app.patch('/mark-paid/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await pool.query('UPDATE orders SET paid = true WHERE id = $1', [id]);
+    res.status(200).send(`Bestellung mit ID ${id} als bezahlt markiert`);
+  } catch (err) {
+    console.error('Fehler beim Aktualisieren des Paid-Status:', err);
+    res.status(500).send('Fehler beim Aktualisieren des Paid-Status');
+  }
+});
+
+
 // Server starten
 app.listen(port, () => {
   console.log(`Server läuft auf http://localhost:${port}`);
