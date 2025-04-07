@@ -4,6 +4,11 @@ const cors = require('cors'); // CORS-Modul importieren
 
 const app = express();
 const port = process.env.PORT || 3000;  // Falls PORT nicht gesetzt ist, nutze 3000 für lokale Entwicklung
+// Beispiel: Express Server (app.js oder server.js)
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
 
 // PostgreSQL-Verbindung
 const pool = new Pool({
@@ -15,7 +20,7 @@ const pool = new Pool({
 
 // CORS-Konfiguration
 const corsOptions = {
-  origin: 'https://dein-front-end-url.com', // Ersetze dies mit der tatsächlichen Frontend-URL
+  origin: 'https://alnovo21.github.io', // Ersetze dies mit der tatsächlichen Frontend-URL
   methods: 'GET,POST,DELETE', // Erlaube nur bestimmte HTTP-Methoden
 };
 
@@ -29,7 +34,7 @@ app.get('/get-orders', async (req, res) => {
   try {
     const query = `
       SELECT id, firstname, lastname, food_choice, meat_choice, quantity, drink, 
-             ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price, created_at, status
+             ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price, created_at
       FROM orders
       WHERE DATE(created_at) = CURRENT_DATE
     `;
@@ -70,7 +75,7 @@ app.post('/submit-orders', async (req, res) => {
 
     for (const order of orders) {
       await pool.query(
-        'INSERT INTO orders (firstname, lastname, food_choice, meat_choice, quantity, drink, ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+        'INSERT INTO orders (firstname, lastname, food_choice, meat_choice, quantity, drink, ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
         [
           order.firstname,
           order.lastname,
@@ -82,8 +87,7 @@ app.post('/submit-orders', async (req, res) => {
           order.extra_no_tomato,
           order.extra_spicy,
           order.extra_with_cheese,
-          (order.price * order.quantity),
-          'unbezahlt' // Der Status der Bestellung ist zu Beginn "unbezahlt"
+          (order.price * order.quantity)
         ]
       );
     }
@@ -95,18 +99,16 @@ app.post('/submit-orders', async (req, res) => {
   }
 });
 
-// Route zum Aktualisieren des Bestellstatus auf "bezahlt"
-app.put('/update-order-status/:id', async (req, res) => {
+// Route zum Löschen einer Bestellung
+app.delete('/delete-order/:id', async (req, res) => {
   const { id } = req.params;
+
   try {
-    await pool.query(
-      'UPDATE orders SET status = $1 WHERE id = $2',
-      ['bezahlt', id]  // Setzt den Status der Bestellung auf "bezahlt"
-    );
-    res.status(200).send('Bestellstatus erfolgreich aktualisiert');
+    await pool.query('DELETE FROM orders WHERE id = $1', [id]);
+    res.status(200).send('Bestellung erfolgreich gelöscht');
   } catch (err) {
-    console.error('Fehler beim Aktualisieren des Bestellstatus:', err);
-    res.status(500).send('Fehler beim Aktualisieren des Bestellstatus');
+    console.error('Fehler beim Löschen der Bestellung:', err);
+    res.status(500).send('Fehler beim Löschen der Bestellung');
   }
 });
 
