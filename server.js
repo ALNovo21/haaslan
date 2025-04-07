@@ -29,12 +29,11 @@ app.use(cors(corsOptions));  // CORS für bestimmte Ursprünge aktivieren
 // Middleware, um JSON-Daten zu verarbeiten
 app.use(express.json());
 
-// Route zum Abrufen der Bestellungen
 app.get('/get-orders', async (req, res) => {
   try {
     const query = `
       SELECT id, firstname, lastname, food_choice, meat_choice, quantity, drink, 
-             ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price, created_at
+             ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price, created_at, paid
       FROM orders
       WHERE DATE(created_at) = CURRENT_DATE
     `;
@@ -51,13 +50,15 @@ app.get('/get-orders', async (req, res) => {
       const mitScharf = order.mit_scharf ? "X" : "";
       const mitSchafskäse = order.mit_schafskäse ? "X" : "";
 
+      // Rückgabe des erweiterten Bestellobjekts mit dem "paid"-Wert
       return {
         ...order,
         ohne_soße: ohneSoße,
         ohne_tomate: ohneTomate,
         mit_scharf: mitScharf,
         mit_schafskäse: mitSchafskäse,
-        created_at: formattedDate
+        created_at: formattedDate,
+        paid: order.paid // Der `paid`-Wert wird jetzt auch mit übergeben
       };
     });
 
@@ -67,6 +68,7 @@ app.get('/get-orders', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Route zum Speichern einer neuen Bestellung
 app.post('/submit-orders', async (req, res) => {
