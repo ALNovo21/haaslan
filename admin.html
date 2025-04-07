@@ -114,6 +114,23 @@
         </tbody>
       </table>
 
+      <!-- Alle Bestellungen (unabhängig vom Datum) -->
+      <h3 class="mt-5">📋 Alle Bestellungen (unabhängig vom Datum)</h3>
+      <table class="table table-striped">
+        <thead class="thead-light">
+          <tr>
+            <th>Vorname</th>
+            <th>Nachname</th>
+            <th>Gericht</th>
+            <th>Fleisch</th>
+            <th>Bezahlt</th>
+            <th>Aktion</th>
+          </tr>
+        </thead>
+        <tbody id="all-order-list">
+          <!-- Hier kommen alle Bestellungen rein -->
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -164,7 +181,7 @@
     function markAsPaid(orderId) {
       $.ajax({
         url: `${backendUrl}/mark-as-paid/${orderId}`,
-        method: 'PUT',
+        method: 'POST', // Wir verwenden POST für die Markierung
         success: function () {
           fetchOrders(); // Nach dem Markieren als bezahlt neu laden
         },
@@ -178,15 +195,17 @@
     // Bestellungen und Zusammenfassungen laden
     function fetchOrders() {
       $.ajax({
-        url: `${backendUrl}/get-orders`,
+        url: `${backendUrl}/get-all-orders`, // Hole alle Bestellungen (nicht nur von heute)
         method: 'GET',
         success: function (data) {
           const orderList = $('#order-list');
+          const allOrderList = $('#all-order-list');
           const summaryList = $('#summary-list');
           const drinkSummaryList = $('#drink-summary-list');
           let totalPrice = 0;
 
           orderList.empty();
+          allOrderList.empty();
           summaryList.empty();
           drinkSummaryList.empty();
 
@@ -199,7 +218,7 @@
             const mitScharf = order.mit_scharf ? 'X' : '';
             const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
 
-            // Einzelne Bestellung einfügen
+            // Bestellungen von heute einfügen
             orderList.append(`
               <tr>
                 <td>${order.firstname}</td>
@@ -221,68 +240,22 @@
               </tr>
             `);
 
+            // Alle Bestellungen (unabhängig vom Datum)
+            allOrderList.append(`
+              <tr>
+                <td>${order.firstname}</td>
+                <td>${order.lastname}</td>
+                <td>${order.food_choice}</td>
+                <td>${order.meat_choice}</td>
+                <td>${order.paid ? 'Ja' : 'Nein'}</td>
+                <td>
+                  <button class="btn btn-success btn-sm mark-paid" data-id="${order.id}">Bezahlt</button>
+                </td>
+              </tr>
+            `);
+
             // Gesamtpreis berechnen
             totalPrice += parseFloat(order.total_price);
-
-            // === Zusammenfassungen ===
-
-            // Artikel-Zusammenfassung
-            const key = [
-              order.food_choice,
-              order.meat_choice,
-              order.mit_schafskäse ? 'mit Schafskäse' : '',
-              order.mit_scharf ? 'mit Scharf' : '',
-              order.ohne_soße ? 'ohne Soße' : '',
-              order.ohne_tomate ? 'ohne Tomate' : ''
-            ].join('|');
-
-            if (!summaryMap[key]) {
-              summaryMap[key] = {
-                food: order.food_choice,
-                meat: order.meat_choice,
-                mit_schafskäse: order.mit_schafskäse,
-                mit_scharf: order.mit_scharf,
-                ohne_soße: order.ohne_soße,
-                ohne_tomate: order.ohne_tomate,
-                quantity: 0
-              };
-            }
-
-            summaryMap[key].quantity += order.quantity;
-
-            // Getränke-Zusammenfassung
-            const drink = order.drink?.trim();
-            if (drink) {
-              if (!drinkMap[drink]) {
-                drinkMap[drink] = 0;
-              }
-              drinkMap[drink] += order.quantity;
-            }
-          });
-
-          // Artikel-Zusammenfassung anzeigen
-          Object.values(summaryMap).forEach(entry => {
-            summaryList.append(`
-              <tr>
-                <td>${entry.food}</td>
-                <td>${entry.meat}</td>
-                <td>${entry.mit_schafskäse ? 'X' : ''}</td>
-                <td>${entry.mit_scharf ? 'X' : ''}</td>
-                <td>${entry.ohne_soße ? 'X' : ''}</td>
-                <td>${entry.ohne_tomate ? 'X' : ''}</td>
-                <td>${entry.quantity}</td>
-              </tr>
-            `);
-          });
-
-          // Getränke-Zusammenfassung anzeigen
-          Object.entries(drinkMap).forEach(([drink, count]) => {
-            drinkSummaryList.append(`
-              <tr>
-                <td>${drink}</td>
-                <td>${count}</td>
-              </tr>
-            `);
           });
 
           // Gesamtpreis anzeigen

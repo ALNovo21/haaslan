@@ -16,7 +16,7 @@ const pool = new Pool({
 // CORS-Konfiguration
 const corsOptions = {
   origin: 'https://alnovo21.github.io', // Ersetze dies mit der tatsächlichen Frontend-URL
-  methods: 'GET,POST,DELETE', // Erlaube nur bestimmte HTTP-Methoden
+  methods: 'GET,POST,PUT,DELETE', // Erlaube die benötigten HTTP-Methoden
 };
 
 app.use(cors(corsOptions));  // CORS für bestimmte Ursprünge aktivieren
@@ -108,7 +108,7 @@ app.delete('/delete-order/:id', async (req, res) => {
 });
 
 // Route zum Markieren einer Bestellung als bezahlt
-app.post('/mark-as-paid/:id', async (req, res) => {
+app.put('/mark-as-paid/:id', async (req, res) => { // Methode auf PUT geändert
   const { id } = req.params;
 
   try {
