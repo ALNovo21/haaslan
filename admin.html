@@ -205,166 +205,155 @@ function markOrderAsPaid(orderId) {
 }
 
 
-    // Bestellungen und Zusammenfassungen laden
-    function fetchOrders() {
-      $.ajax({
-        url: `${backendUrl}/get-orders`,
-        method: 'GET',
-        success: function (data) {
-          const orderList = $('#order-list');
-          const summaryList = $('#summary-list');
-          const drinkSummaryList = $('#drink-summary-list');
-          let totalPrice = 0;
+  // Bestellungen und Zusammenfassungen laden
+function fetchOrders() {
+  $.ajax({
+    url: `${backendUrl}/get-orders`,
+    method: 'GET',
+    success: function (data) {
+      const orderList = $('#order-list');
+      const archiveList = $('#archive-list');  // Hier fügen wir die Archive-Tabelle hinzu
+      const summaryList = $('#summary-list');
+      const drinkSummaryList = $('#drink-summary-list');
+      let totalPrice = 0;
 
-          orderList.empty();
-          summaryList.empty();
-          drinkSummaryList.empty();
+      orderList.empty();
+      archiveList.empty();  // Leert die Archiv-Tabelle
+      summaryList.empty();
+      drinkSummaryList.empty();
 
-          const summaryMap = {};
-          const drinkMap = {};
+      const summaryMap = {};
+      const drinkMap = {};
 
-          data.orders.forEach(order => {
-            const ohneSoße = order.ohne_soße ? 'X' : '';
-            const ohneTomate = order.ohne_tomate ? 'X' : '';
-            const mitScharf = order.mit_scharf ? 'X' : '';
-            const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
+      // Iteriere über die Bestellungen
+      data.orders.forEach(order => {
+        const ohneSoße = order.ohne_soße ? 'X' : '';
+        const ohneTomate = order.ohne_tomate ? 'X' : '';
+        const mitScharf = order.mit_scharf ? 'X' : '';
+        const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
 
-            // Einzelne Bestellung einfügen
-            orderList.append(`
-              <tr>
-                <td>${order.firstname}</td>
-                <td>${order.lastname}</td>
-                <td>${order.quantity}</td>
-                <td>${order.food_choice}</td>
-                <td>${order.meat_choice}</td>
-                <td>${ohneSoße}</td>
-                <td>${ohneTomate}</td>
-                <td>${mitScharf}</td>
-                <td>${mitSchafskäse}</td>
-                <td>${order.drink}</td>
-                <td>${order.total_price} €</td>
-                <td>${order.created_at}</td>
-                <td>
-  <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
-  <br/>
-  ${!order.paid 
-    ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` 
-    : '<span class="badge badge-success mt-1">Bezahlt</span>'
-  }
-</td>
-<td>
-  ${order.paid === true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
-</td>
-
-
-
-
-
-
-              </tr>
-            `);
-
-            // Gesamtpreis berechnen
-            totalPrice += parseFloat(order.total_price);
-
-            // === Zusammenfassungen ===
-
-            // Artikel-Zusammenfassung
-            const key = [
-              order.food_choice,
-              order.meat_choice,
-              order.mit_schafskäse ? 'mit Schafskäse' : '',
-              order.mit_scharf ? 'mit Scharf' : '',
-              order.ohne_soße ? 'ohne Soße' : '',
-              order.ohne_tomate ? 'ohne Tomate' : ''
-            ].join('|');
-
-            if (!summaryMap[key]) {
-              summaryMap[key] = {
-                food: order.food_choice,
-                meat: order.meat_choice,
-                mit_schafskäse: order.mit_schafskäse,
-                mit_scharf: order.mit_scharf,
-                ohne_soße: order.ohne_soße,
-                ohne_tomate: order.ohne_tomate,
-                quantity: 0
-              };
-            }
-
-            summaryMap[key].quantity += order.quantity;
-
-            // Getränke-Zusammenfassung
-            const drink = order.drink?.trim();
-            if (drink) {
-              if (!drinkMap[drink]) {
-                drinkMap[drink] = 0;
+        // **Normale Bestellungen** (Lösch-Buttons für aktuelle Bestellungen)
+        orderList.append(`
+          <tr>
+            <td>${order.firstname}</td>
+            <td>${order.lastname}</td>
+            <td>${order.quantity}</td>
+            <td>${order.food_choice}</td>
+            <td>${order.meat_choice}</td>
+            <td>${ohneSoße}</td>
+            <td>${ohneTomate}</td>
+            <td>${mitScharf}</td>
+            <td>${mitSchafskäse}</td>
+            <td>${order.drink}</td>
+            <td>${order.total_price} €</td>
+            <td>${order.created_at}</td>
+            <td>
+              <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
+              <br/>
+              ${!order.paid 
+                ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` 
+                : '<span class="badge badge-success mt-1">Bezahlt</span>'
               }
-              drinkMap[drink] += order.quantity;
-            }
-          });
+            </td>
+            <td>
+              ${order.paid === true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
+            </td>
+          </tr>
+        `);
 
-          // Artikel-Zusammenfassung anzeigen
-          Object.values(summaryMap).forEach(entry => {
-            summaryList.append(`
-              <tr>
-                <td>${entry.food}</td>
-                <td>${entry.meat}</td>
-                <td>${entry.mit_schafskäse ? 'X' : ''}</td>
-                <td>${entry.mit_scharf ? 'X' : ''}</td>
-                <td>${entry.ohne_soße ? 'X' : ''}</td>
-                <td>${entry.ohne_tomate ? 'X' : ''}</td>
-                <td>${entry.quantity}</td>
-              </tr>
-            `);
-          });
+        // **Archiv ohne Lösch-Button**
+        archiveList.append(`
+          <tr>
+            <td>${order.firstname}</td>
+            <td>${order.lastname}</td>
+            <td>${order.quantity}</td>
+            <td>${order.food_choice}</td>
+            <td>${order.meat_choice}</td>
+            <td>${ohneSoße}</td>
+            <td>${ohneTomate}</td>
+            <td>${mitScharf}</td>
+            <td>${mitSchafskäse}</td>
+            <td>${order.drink}</td>
+            <td>${order.total_price} €</td>
+            <td>${order.created_at}</td>
+            <td>
+              ${order.paid === true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
+            </td>
+          </tr>
+        `);
 
-          orderList.append(`
-  <tr>
-    <td>${order.firstname}</td>
-    <td>${order.lastname}</td>
-    <td>${order.quantity}</td>
-    <td>${order.food_choice}</td>
-    <td>${order.meat_choice}</td>
-    <td>${ohneSoße}</td>
-    <td>${ohneTomate}</td>
-    <td>${mitScharf}</td>
-    <td>${mitSchafskäse}</td>
-    <td>${order.drink}</td>
-    <td>${order.total_price} €</td>
-    <td>${order.created_at}</td>
-    <td>
-      <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
-      <br/>
-      ${!order.paid 
-        ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` 
-        : '<span class="badge badge-success mt-1">Bezahlt</span>'
-      }
-    </td>
-    <td>
-      ${order.paid === true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
-    </td>
-  </tr>
-`);
+        // Gesamtpreis berechnen
+        totalPrice += parseFloat(order.total_price);
 
+        // === Zusammenfassungen ===
 
-          // Getränke-Zusammenfassung anzeigen
-          Object.entries(drinkMap).forEach(([drink, count]) => {
-            drinkSummaryList.append(`
-              <tr>
-                <td>${drink}</td>
-                <td>${count}</td>
-              </tr>
-            `);
-          });
+        // Artikel-Zusammenfassung
+        const key = [
+          order.food_choice,
+          order.meat_choice,
+          order.mit_schafskäse ? 'mit Schafskäse' : '',
+          order.mit_scharf ? 'mit Scharf' : '',
+          order.ohne_soße ? 'ohne Soße' : '',
+          order.ohne_tomate ? 'ohne Tomate' : ''
+        ].join('|');
 
-          // Gesamtpreis anzeigen
-          $('#total-price').text(`${totalPrice.toFixed(2)} €`);
-        },
-        error: function () {
-          alert('Fehler beim Abrufen der Bestellungen.');
+        if (!summaryMap[key]) {
+          summaryMap[key] = {
+            food: order.food_choice,
+            meat: order.meat_choice,
+            mit_schafskäse: order.mit_schafskäse,
+            mit_scharf: order.mit_scharf,
+            ohne_soße: order.ohne_soße,
+            ohne_tomate: order.ohne_tomate,
+            quantity: 0
+          };
+        }
+
+        summaryMap[key].quantity += order.quantity;
+
+        // Getränke-Zusammenfassung
+        const drink = order.drink?.trim();
+        if (drink) {
+          if (!drinkMap[drink]) {
+            drinkMap[drink] = 0;
+          }
+          drinkMap[drink] += order.quantity;
         }
       });
+
+      // Artikel-Zusammenfassung anzeigen
+      Object.values(summaryMap).forEach(entry => {
+        summaryList.append(`
+          <tr>
+            <td>${entry.food}</td>
+            <td>${entry.meat}</td>
+            <td>${entry.mit_schafskäse ? 'X' : ''}</td>
+            <td>${entry.mit_scharf ? 'X' : ''}</td>
+            <td>${entry.ohne_soße ? 'X' : ''}</td>
+            <td>${entry.ohne_tomate ? 'X' : ''}</td>
+            <td>${entry.quantity}</td>
+          </tr>
+        `);
+      });
+
+      // Getränke-Zusammenfassung anzeigen
+      Object.entries(drinkMap).forEach(([drink, count]) => {
+        drinkSummaryList.append(`
+          <tr>
+            <td>${drink}</td>
+            <td>${count}</td>
+          </tr>
+        `);
+      });
+
+      // Gesamtpreis anzeigen
+      $('#total-price').text(`${totalPrice.toFixed(2)} €`);
+    },
+    error: function () {
+      alert('Fehler beim Abrufen der Bestellungen.');
     }
+  });
+}
 
     // Seite laden
     $(document).ready(function () {
