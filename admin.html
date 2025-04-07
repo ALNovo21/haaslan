@@ -337,22 +337,7 @@ function fetchOrders() {
     });
 
     $(document).on('click', '.mark-paid', function() {
-  const orderId = $(this).data('id');  // Holen der Order ID
-  
-  // Status von "Nicht Bezahlt" auf "Bezahlt" ändern
-  $.ajax({
-    url: `${backendUrl}/mark-paid/${orderId}`,
-    method: 'PATCH',
-    success: function () {
-      fetchOrders(); // Tabelle neu laden nach erfolgreicher Markierung
-    },
-    error: function (err) {
-      console.log(err);
-      alert('Fehler beim Aktualisieren des Zahlungsstatus.');
-    }
-  });
-});
-
+  const orderId = $(this).data('id');  // Du hast die orderId, aber kein `order.paid`
   
   $.ajax({
     url: `${backendUrl}/mark-paid/${orderId}`,
