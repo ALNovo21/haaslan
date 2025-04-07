@@ -69,6 +69,7 @@
             <th>Preis</th>
             <th>Datum</th>
             <th>Aktion</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody id="order-list">
@@ -224,6 +225,12 @@ function markOrderAsPaid(orderId) {
     : '<span class="badge badge-success mt-1">Bezahlt</span>'
   }
 </td>
+<td>
+  ${order.paid 
+    ? '<span style="color: green; font-size: 20px;">●</span>' 
+    : '<span style="color: red; font-size: 20px;">●</span>'}
+</td>
+
 
 
               </tr>
