@@ -18,11 +18,11 @@ const pool = new Pool({
   }
 });
 
-// CORS-Konfiguration
 const corsOptions = {
-  origin: 'https://alnovo21.github.io', // Ersetze dies mit der tatsächlichen Frontend-URL
-  methods: 'GET,POST,DELETE', // Erlaube nur bestimmte HTTP-Methoden
+  origin: 'https://alnovo21.github.io',
+  methods: 'GET,POST,DELETE,PATCH',
 };
+
 
 app.use(cors(corsOptions));  // CORS für bestimmte Ursprünge aktivieren
 
