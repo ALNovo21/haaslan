@@ -229,7 +229,7 @@ function fetchOrders() {
               }
             </td>
             <td>
-              ${order.paid === true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
+              ${order.paid == true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
             </td>
           </tr>
         `);
