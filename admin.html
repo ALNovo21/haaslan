@@ -226,10 +226,9 @@ function markOrderAsPaid(orderId) {
   }
 </td>
 <td>
-  ${order.paid === true || order.paid === "true"
-    ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>'
-    : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
+  ${order.paid == true ? '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>' : '<span style="color: red; font-size: 20px;" title="Offen">●</span>'}
 </td>
+
 
 
 
@@ -331,12 +330,9 @@ function markOrderAsPaid(orderId) {
       });
     });
 
-// Event Listener für "Bezahlt"-Button
-$(document).on('click', '.mark-paid', function() {
-  const orderId = $(this).data('id');
-  console.log("PAID:", order.paid, typeof order.paid);
-
-
+    $(document).on('click', '.mark-paid', function() {
+  const orderId = $(this).data('id');  // Du hast die orderId, aber kein `order.paid`
+  
   $.ajax({
     url: `${backendUrl}/mark-paid/${orderId}`,
     method: 'PATCH',
