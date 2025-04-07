@@ -67,7 +67,7 @@
             <th>Mit Schafskäse</th>
             <th>Getränk</th>
             <th>Preis</th>
-            <th>Datum</th>
+            <th>Bezahlt</th>
             <th>Aktion</th>
           </tr>
         </thead>
@@ -125,16 +125,6 @@
       ? "http://localhost:3000"
       : "https://haaslan.onrender.com";
 
-    // Hilfsfunktion zur Datumsformatierung
-   /* function formatDate(date) {
-      const d = new Date(date);
-      if (isNaN(d.getTime())) return 'N/A';
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear().toString().slice(2);
-      return `${day}.${month}.${year}`;
-    }*/
-
     // Passwortüberprüfung
     function checkPassword() {
       const password = document.getElementById("password").value;
@@ -142,12 +132,10 @@
       // Überprüfen, ob das Passwort im localStorage gespeichert ist
       const storedPassword = localStorage.getItem("adminPassword");
       if (storedPassword && storedPassword === "Haaslan") {
-        // Wenn das gespeicherte Passwort existiert und korrekt ist
         document.getElementById("password-screen").style.display = "none";
         document.getElementById("admin-content").style.display = "block";
         fetchOrders(); // Bestellungen laden, wenn Zugriff gewährt wird
       } else if (password === "Haaslan") {
-        // Wenn das eingegebene Passwort korrekt ist
         localStorage.setItem("adminPassword", password); // Speichern des Passworts
         document.getElementById("password-screen").style.display = "none";
         document.getElementById("admin-content").style.display = "block";
@@ -168,6 +156,21 @@
         error: function (err) {
           console.log(err); // Fehlerausgabe in der Konsole
           alert('Fehler beim Löschen der Bestellung.');
+        }
+      });
+    }
+
+    // Bestellung auf bezahlt setzen
+    function markAsPaid(orderId) {
+      $.ajax({
+        url: `${backendUrl}/mark-as-paid/${orderId}`,
+        method: 'PUT',
+        success: function () {
+          fetchOrders(); // Nach dem Markieren als bezahlt neu laden
+        },
+        error: function (err) {
+          console.log(err); // Fehlerausgabe in der Konsole
+          alert('Fehler beim Markieren der Bestellung als bezahlt.');
         }
       });
     }
@@ -210,9 +213,10 @@
                 <td>${mitSchafskäse}</td>
                 <td>${order.drink}</td>
                 <td>${order.total_price} €</td>
-                <td>${order.created_at}</td>
+                <td>${order.paid ? 'Ja' : 'Nein'}</td>
                 <td>
                   <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
+                  <button class="btn btn-success btn-sm mark-paid" data-id="${order.id}">Bezahlt</button>
                 </td>
               </tr>
             `);
@@ -292,21 +296,25 @@
 
     // Seite laden
     $(document).ready(function () {
-      // Überprüfen, ob das Passwort im localStorage gespeichert ist
       const storedPassword = localStorage.getItem("adminPassword");
       if (storedPassword && storedPassword === "Haaslan") {
         document.getElementById("password-screen").style.display = "none";
         document.getElementById("admin-content").style.display = "block";
-        fetchOrders(); // Bestellungen laden, wenn Zugriff gewährt wird
+        fetchOrders();
       } else {
         document.getElementById("password-screen").style.display = "block";
         document.getElementById("admin-content").style.display = "none";
       }
 
-      // Event Listener für die Löschen-Buttons
+      // Event Listener für die Löschen- und Bezahlt-Buttons
       $(document).on('click', '.delete-order', function() {
         const orderId = $(this).data('id');
         deleteOrder(orderId);
+      });
+
+      $(document).on('click', '.mark-paid', function() {
+        const orderId = $(this).data('id');
+        markAsPaid(orderId);
       });
     });
   </script>
