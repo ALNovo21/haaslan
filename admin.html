@@ -219,8 +219,11 @@ function markOrderAsPaid(orderId) {
                 <td>
   <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
   <br/>
-  <button class="btn btn-success btn-sm mt-1 mark-paid" data-id="${order.id}">Bezahlt</button>
+  <td>
+  <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
+  ${!order.paid ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` : '<span class="badge badge-success mt-1">Bezahlt</span>'}
 </td>
+
 
               </tr>
             `);
@@ -318,11 +321,23 @@ function markOrderAsPaid(orderId) {
       });
     });
 
-    // Event Listener für den "Bezahlt"-Button
+// Event Listener für "Bezahlt"-Button
 $(document).on('click', '.mark-paid', function() {
   const orderId = $(this).data('id');
-  markOrderAsPaid(orderId);
+
+  $.ajax({
+    url: `${backendUrl}/mark-paid/${orderId}`,
+    method: 'PATCH',
+    success: function () {
+      fetchOrders(); // Tabelle neu laden nach erfolgreicher Markierung
+    },
+    error: function (err) {
+      console.log(err);
+      alert('Fehler beim Aktualisieren des Zahlungsstatus.');
+    }
+  });
 });
+
 
   </script>
 
