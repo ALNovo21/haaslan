@@ -112,20 +112,6 @@ app.delete('/delete-order/:id', async (req, res) => {
   }
 });
 
-app.put('/set-paid/:id', (req, res) => {
-  const orderId = req.params.id;
-  const query = 'UPDATE orders SET paid = true WHERE id = $1';
-
-  pool.query(query, [orderId], (err) => {
-    if (err) {
-      console.error('Fehler beim Setzen von paid:', err);
-      return res.status(500).send('Fehler beim Aktualisieren der Bestellung');
-    }
-    res.send('Bestellung auf bezahlt gesetzt');
-  });
-});
-
-
 // Server starten
 app.listen(port, () => {
   console.log(`Server läuft auf http://localhost:${port}`);
