@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin - Bestellübersicht</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <!-- FontAwesome für das Refresh-Icon -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
   <style>
     .password-screen {
@@ -14,8 +13,6 @@
     .content {
       display: none;
     }
-
-    /* Style für das Refresh-Icon oben rechts */
     .refresh-btn {
       position: absolute;
       top: 10px;
@@ -24,7 +21,6 @@
       cursor: pointer;
       color: #007bff;
     }
-
     .refresh-btn:hover {
       color: #0056b3;
     }
@@ -32,7 +28,6 @@
 </head>
 <body>
 
-  <!-- Passwort-Screen -->
   <div class="password-screen text-center" id="password-screen">
     <div class="container">
       <h2>Admin Bereich - Passwort erforderlich</h2>
@@ -41,17 +36,14 @@
     </div>
   </div>
 
-  <!-- Admin Content -->
   <div class="content" id="admin-content">
     <div class="container my-5">
       <h1 class="text-center mb-4">🍽️ Bestellübersicht</h1>
 
-      <!-- Button zum Refresh oben rechts -->
       <div class="refresh-btn" onclick="fetchOrders()">
         <i class="fas fa-sync-alt"></i> Aktualisieren
       </div>
 
-      <!-- Einzelne Bestellungen -->
       <h3>📋 Alle Bestellungen von heute</h3>
       <table class="table table-striped">
         <thead class="thead-light">
@@ -68,20 +60,17 @@
             <th>Getränk</th>
             <th>Preis</th>
             <th>Datum</th>
+            <th>Bezahlt</th>
             <th>Aktion</th>
           </tr>
         </thead>
-        <tbody id="order-list">
-          <!-- Hier kommen die Bestellungen rein -->
-        </tbody>
+        <tbody id="order-list"></tbody>
       </table>
 
-      <!-- Gesamtpreis -->
       <div id="total-price-container" class="text-right">
         <h4>Gesamtpreis aller Bestellungen: <span id="total-price">0 €</span></h4>
       </div>
 
-      <!-- Artikel-Zusammenfassung -->
       <h3 class="mt-5">📦 Artikel-Zusammenfassung</h3>
       <table class="table table-striped">
         <thead class="thead-light">
@@ -95,12 +84,9 @@
             <th>Gesamtmenge</th>
           </tr>
         </thead>
-        <tbody id="summary-list">
-          <!-- Artikel-Zusammenfassung -->
-        </tbody>
+        <tbody id="summary-list"></tbody>
       </table>
 
-      <!-- Getränke-Zusammenfassung -->
       <h3 class="mt-4">🥤 Getränke-Zusammenfassung</h3>
       <table class="table table-striped">
         <thead class="thead-light">
@@ -109,154 +95,169 @@
             <th>Anzahl</th>
           </tr>
         </thead>
-        <tbody id="drink-summary-list">
-          <!-- Getränke-Zusammenfassung -->
-        </tbody>
+        <tbody id="drink-summary-list"></tbody>
+      </table>
+
+      <h3 class="mt-5">📜 Alle Bestellungen</h3>
+      <table class="table table-striped">
+        <thead class="thead-light">
+          <tr>
+            <th>Vorname</th>
+            <th>Nachname</th>
+            <th>Menge</th>
+            <th>Gericht</th>
+            <th>Fleisch</th>
+            <th>Getränk</th>
+            <th>Preis</th>
+            <th>Datum</th>
+            <th>Bezahlt</th>
+            <th>Aktion</th>
+          </tr>
+        </thead>
+        <tbody id="order-list-all"></tbody>
       </table>
 
     </div>
   </div>
 
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-
   <script>
     const backendUrl = location.hostname === "localhost"
       ? "http://localhost:3000"
       : "https://haaslan.onrender.com";
 
-    // Hilfsfunktion zur Datumsformatierung
-   /* function formatDate(date) {
-      const d = new Date(date);
-      if (isNaN(d.getTime())) return 'N/A';
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear().toString().slice(2);
-      return `${day}.${month}.${year}`;
-    }*/
-
-    // Passwortüberprüfung
     function checkPassword() {
       const password = document.getElementById("password").value;
-
-      // Überprüfen, ob das Passwort im localStorage gespeichert ist
       const storedPassword = localStorage.getItem("adminPassword");
-      if (storedPassword && storedPassword === "Haaslan") {
-        // Wenn das gespeicherte Passwort existiert und korrekt ist
+
+      if ((storedPassword && storedPassword === "Haaslan") || password === "Haaslan") {
+        localStorage.setItem("adminPassword", "Haaslan");
         document.getElementById("password-screen").style.display = "none";
         document.getElementById("admin-content").style.display = "block";
-        fetchOrders(); // Bestellungen laden, wenn Zugriff gewährt wird
-      } else if (password === "Haaslan") {
-        // Wenn das eingegebene Passwort korrekt ist
-        localStorage.setItem("adminPassword", password); // Speichern des Passworts
-        document.getElementById("password-screen").style.display = "none";
-        document.getElementById("admin-content").style.display = "block";
-        fetchOrders(); // Bestellungen laden, wenn Zugriff gewährt wird
+        fetchOrders();
       } else {
-        alert("Falsches Passwort. Bitte versuche es erneut.");
+        alert("Falsches Passwort.");
       }
     }
 
-    // Bestellung löschen
     function deleteOrder(orderId) {
       $.ajax({
         url: `${backendUrl}/delete-order/${orderId}`,
         method: 'DELETE',
-        success: function () {
-          fetchOrders(); // Nach dem Löschen neu laden
-        },
-        error: function (err) {
-          console.log(err); // Fehlerausgabe in der Konsole
-          alert('Fehler beim Löschen der Bestellung.');
-        }
+        success: fetchOrders,
+        error: () => alert('Fehler beim Löschen.')
       });
     }
 
-    // Bestellungen und Zusammenfassungen laden
+    function markAsPaid(orderId) {
+      $.ajax({
+        url: `${backendUrl}/set-paid/${orderId}`,
+        method: 'PUT',
+        success: fetchOrders,
+        error: () => alert("Fehler beim Setzen auf 'bezahlt'.")
+      });
+    }
+
     function fetchOrders() {
       $.ajax({
         url: `${backendUrl}/get-orders`,
         method: 'GET',
         success: function (data) {
-          const orderList = $('#order-list');
+          const today = new Date().toISOString().slice(0, 10);
+          const orderListToday = $('#order-list');
+          const orderListAll = $('#order-list-all');
           const summaryList = $('#summary-list');
           const drinkSummaryList = $('#drink-summary-list');
           let totalPrice = 0;
-
-          orderList.empty();
-          summaryList.empty();
-          drinkSummaryList.empty();
-
           const summaryMap = {};
           const drinkMap = {};
 
+          orderListToday.empty();
+          orderListAll.empty();
+          summaryList.empty();
+          drinkSummaryList.empty();
+
           data.orders.forEach(order => {
+            const paid = order.paid ? '✅' : '❌';
             const ohneSoße = order.ohne_soße ? 'X' : '';
             const ohneTomate = order.ohne_tomate ? 'X' : '';
             const mitScharf = order.mit_scharf ? 'X' : '';
             const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
 
-            // Einzelne Bestellung einfügen
-            orderList.append(`
+            const row = `
               <tr>
                 <td>${order.firstname}</td>
                 <td>${order.lastname}</td>
                 <td>${order.quantity}</td>
                 <td>${order.food_choice}</td>
                 <td>${order.meat_choice}</td>
-                <td>${ohneSoße}</td>
-                <td>${ohneTomate}</td>
-                <td>${mitScharf}</td>
-                <td>${mitSchafskäse}</td>
                 <td>${order.drink}</td>
                 <td>${order.total_price} €</td>
                 <td>${order.created_at}</td>
+                <td>${paid}</td>
                 <td>
+                  <button class="btn btn-success btn-sm" onclick="markAsPaid(${order.id})">Paid</button>
                   <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
                 </td>
               </tr>
-            `);
+            `;
 
-            // Gesamtpreis berechnen
-            totalPrice += parseFloat(order.total_price);
+            orderListAll.append(row);
 
-            // === Zusammenfassungen ===
+            if (order.created_at?.startsWith(today)) {
+              orderListToday.append(`
+                <tr>
+                  <td>${order.firstname}</td>
+                  <td>${order.lastname}</td>
+                  <td>${order.quantity}</td>
+                  <td>${order.food_choice}</td>
+                  <td>${order.meat_choice}</td>
+                  <td>${ohneSoße}</td>
+                  <td>${ohneTomate}</td>
+                  <td>${mitScharf}</td>
+                  <td>${mitSchafskäse}</td>
+                  <td>${order.drink}</td>
+                  <td>${order.total_price} €</td>
+                  <td>${order.created_at}</td>
+                  <td>${paid}</td>
+                  <td>
+                    <button class="btn btn-success btn-sm" onclick="markAsPaid(${order.id})">Paid</button>
+                    <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
+                  </td>
+                </tr>
+              `);
 
-            // Artikel-Zusammenfassung
-            const key = [
-              order.food_choice,
-              order.meat_choice,
-              order.mit_schafskäse ? 'mit Schafskäse' : '',
-              order.mit_scharf ? 'mit Scharf' : '',
-              order.ohne_soße ? 'ohne Soße' : '',
-              order.ohne_tomate ? 'ohne Tomate' : ''
-            ].join('|');
+              totalPrice += parseFloat(order.total_price);
 
-            if (!summaryMap[key]) {
-              summaryMap[key] = {
-                food: order.food_choice,
-                meat: order.meat_choice,
-                mit_schafskäse: order.mit_schafskäse,
-                mit_scharf: order.mit_scharf,
-                ohne_soße: order.ohne_soße,
-                ohne_tomate: order.ohne_tomate,
-                quantity: 0
-              };
-            }
+              const key = [
+                order.food_choice,
+                order.meat_choice,
+                order.mit_schafskäse ? 'mit Schafskäse' : '',
+                order.mit_scharf ? 'mit Scharf' : '',
+                order.ohne_soße ? 'ohne Soße' : '',
+                order.ohne_tomate ? 'ohne Tomate' : ''
+              ].join('|');
 
-            summaryMap[key].quantity += order.quantity;
-
-            // Getränke-Zusammenfassung
-            const drink = order.drink?.trim();
-            if (drink) {
-              if (!drinkMap[drink]) {
-                drinkMap[drink] = 0;
+              if (!summaryMap[key]) {
+                summaryMap[key] = {
+                  food: order.food_choice,
+                  meat: order.meat_choice,
+                  mit_schafskäse: order.mit_schafskäse,
+                  mit_scharf: order.mit_scharf,
+                  ohne_soße: order.ohne_soße,
+                  ohne_tomate: order.ohne_tomate,
+                  quantity: 0
+                };
               }
-              drinkMap[drink] += order.quantity;
+              summaryMap[key].quantity += order.quantity;
+
+              const drink = order.drink?.trim();
+              if (drink) {
+                drinkMap[drink] = (drinkMap[drink] || 0) + order.quantity;
+              }
             }
           });
 
-          // Artikel-Zusammenfassung anzeigen
           Object.values(summaryMap).forEach(entry => {
             summaryList.append(`
               <tr>
@@ -271,40 +272,25 @@
             `);
           });
 
-          // Getränke-Zusammenfassung anzeigen
           Object.entries(drinkMap).forEach(([drink, count]) => {
-            drinkSummaryList.append(`
-              <tr>
-                <td>${drink}</td>
-                <td>${count}</td>
-              </tr>
-            `);
+            drinkSummaryList.append(`<tr><td>${drink}</td><td>${count}</td></tr>`);
           });
 
-          // Gesamtpreis anzeigen
           $('#total-price').text(`${totalPrice.toFixed(2)} €`);
         },
-        error: function () {
-          alert('Fehler beim Abrufen der Bestellungen.');
-        }
+        error: () => alert('Fehler beim Abrufen der Bestellungen.')
       });
     }
 
-    // Seite laden
     $(document).ready(function () {
-      // Überprüfen, ob das Passwort im localStorage gespeichert ist
       const storedPassword = localStorage.getItem("adminPassword");
-      if (storedPassword && storedPassword === "Haaslan") {
+      if (storedPassword === "Haaslan") {
         document.getElementById("password-screen").style.display = "none";
         document.getElementById("admin-content").style.display = "block";
-        fetchOrders(); // Bestellungen laden, wenn Zugriff gewährt wird
-      } else {
-        document.getElementById("password-screen").style.display = "block";
-        document.getElementById("admin-content").style.display = "none";
+        fetchOrders();
       }
 
-      // Event Listener für die Löschen-Buttons
-      $(document).on('click', '.delete-order', function() {
+      $(document).on('click', '.delete-order', function () {
         const orderId = $(this).data('id');
         deleteOrder(orderId);
       });
