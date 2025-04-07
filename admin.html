@@ -219,9 +219,10 @@ function markOrderAsPaid(orderId) {
                 <td>
   <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
   <br/>
-  <td>
-  <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
-  ${!order.paid ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` : '<span class="badge badge-success mt-1">Bezahlt</span>'}
+  ${!order.paid 
+    ? `<button class="btn btn-success btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlt</button>` 
+    : '<span class="badge badge-success mt-1">Bezahlt</span>'
+  }
 </td>
 
 
