@@ -236,7 +236,7 @@ const nurSalat = order.nur_salat ? 'X' : '';
   <button class="btn btn-danger btn-sm delete-order" data-id="${order.id}">Löschen</button>
   <br/>
   ${order.paid === "Nicht Bezahlt" 
-    ? `<button class="btn btn-primary btn-sm mark-paid mt-1" data-id="${order.id}">nicht Bezahlt</button>` 
+    ? `<button class="btn btn-primary btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlen</button>` 
     : '<span class="badge badge-success mt-1">Bezahlt</span>'
   }
 </td>
