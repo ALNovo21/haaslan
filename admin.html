@@ -122,6 +122,37 @@
         </tbody>
       </table>
       
+      <!-- Neuer Abschnitt für alle Bestellungen -->
+<h3>📋 Alle Bestellungen (ohne Datumseinschränkung)</h3>
+<table class="table table-striped">
+  <thead class="thead-light">
+    <tr>
+      <th>Vorname</th>
+      <th>Nachname</th>
+      <th>Menge</th>
+      <th>Gericht</th>
+      <th>Fleisch</th>
+      <th>Ohne Soße</th>
+      <th>Ohne Tomate</th>
+      <th>Mit Scharf</th>
+      <th>Mit Schafskäse</th>
+      <th>Ohne Zwiebel</th>
+      <th>Extra Soße</th>
+      <th>Nur Salat</th>
+      <th>Getränk</th>
+      <th>Preis</th>
+      <th>Datum</th>
+      <th>Aktion</th>
+      <th>Bezahlt</th>
+    </tr>
+  </thead>
+  <tbody id="all-orders-list">
+    <!-- Hier kommen alle Bestellungen rein -->
+  </tbody>
+</table>
+<div id="total-price-container" class="text-right">
+  <h4>Gesamtpreis aller Bestellungen: <span id="total-price-all">0 €</span></h4>
+</div>
     </div>
   </div>
 
@@ -378,8 +409,93 @@ const nurSalat = order.nur_salat ? 'X' : '';
   });
 });
 
+function fetchAllOrders() {
+    $.ajax({
+      url: `${backendUrl}/get-all-orders`,  // Neue Route für alle Bestellungen
+      method: 'GET',
+      success: function (data) {
+        const allOrderList = $('#all-orders-list');
+        let totalPrice = 0;
+
+        allOrderList.empty();
+
+        data.orders.forEach(order => {
+          const ohneSoße = order.ohne_soße ? 'X' : '';
+          const ohneTomate = order.ohne_tomate ? 'X' : '';
+          const mitScharf = order.mit_scharf ? 'X' : '';
+          const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
+          const ohneZwiebel = order.ohne_zwiebel ? 'X' : '';
+          const extraSauce = order.extra_soße ? 'X' : '';
+          const nurSalat = order.nur_salat ? 'X' : '';
+
+          allOrderList.append(`
+            <tr>
+              <td>${order.firstname}</td>
+              <td>${order.lastname}</td>
+              <td>${order.quantity}</td>
+              <td>${order.food_choice}</td>
+              <td>${order.meat_choice}</td>
+              <td>${ohneSoße}</td>
+              <td>${ohneTomate}</td>
+              <td>${mitScharf}</td>
+              <td>${mitSchafskäse}</td>
+              <td>${ohneZwiebel}</td>
+              <td>${extraSauce}</td>
+              <td>${nurSalat}</td>
+              <td>${order.drink}</td>
+              <td>${order.total_price} €</td>
+              <td>${order.created_at}</td>
+              <td>
+                ${order.paid === "Nicht Bezahlt" 
+                  ? `<button class="btn btn-primary btn-sm mark-paid mt-1" data-id="${order.id}">Bezahlen</button>` 
+                  : '<span class="badge badge-success mt-1">Bezahlt</span>'
+                }
+              </td>
+              <td>
+                ${order.paid === "Nicht Bezahlt" 
+                  ? '<span style="color: red; font-size: 20px;" title="Offen">●</span>' 
+                  : '<span style="color: green; font-size: 20px;" title="Bezahlt">●</span>'}
+              </td>
+            </tr>
+          `);
+
+          totalPrice += parseFloat(order.total_price);
+        });
+
+        $('#total-price-all').text(`${totalPrice.toFixed(2)} €`);
+      },
+      error: function () {
+        alert('Fehler beim Abrufen der Bestellungen.');
+      }
+    });
+  }
+
+  // Event Listener für die Markierung als bezahlt
+  $(document).on('click', '.mark-paid', function() {
+    const orderId = $(this).data('id');
+
+    $.ajax({
+      url: `${backendUrl}/mark-paid/${orderId}`,
+      method: 'PATCH',
+      success: function () {
+        fetchAllOrders();  // Alle Bestellungen nach erfolgreicher Markierung neu laden
+      },
+      error: function (err) {
+        console.log(err);
+        alert('Fehler beim Aktualisieren des Bezahlstatus.');
+      }
+    });
+  });
+
+  // Lade alle Bestellungen, wenn die Seite geladen wird
+  $(document).ready(function () {
+    fetchAllOrders();  // Alle Bestellungen laden
+  });
+
+
 
   </script>
 
 </body>
 </html>
+

@@ -128,6 +128,42 @@ app.patch('/mark-paid/:id', async (req, res) => {
     res.status(500).send('Fehler beim Aktualisieren des Paid-Status');
   }
 });
+// Route zum Abrufen aller Bestellungen (ohne Datumseinschränkung)
+app.get('/get-all-orders', async (req, res) => {
+  try {
+    const query = `
+      SELECT id, firstname, lastname, food_choice, meat_choice, quantity, drink, 
+             ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse,
+             ohne_zwiebel, extra_soße, nur_salat,
+             total_price, created_at, paid
+      FROM orders
+    `;
+    const result = await pool.query(query);
+
+    const orders = result.rows.map(order => {
+      const createdAt = new Date(order.created_at);
+      const formattedDate = `${String(createdAt.getDate()).padStart(2, '0')}.${String(createdAt.getMonth() + 1).padStart(2, '0')}.${createdAt.getFullYear().toString().slice(2)}`;
+
+      return {
+        ...order,
+        ohne_soße: order.ohne_soße ? "X" : "",
+        ohne_tomate: order.ohne_tomate ? "X" : "",
+        mit_scharf: order.mit_scharf ? "X" : "",
+        mit_schafskäse: order.mit_schafskäse ? "X" : "",
+        ohne_zwiebel: order.ohne_zwiebel ? "X" : "",
+        extra_soße: order.extra_soße ? "X" : "",
+        nur_salat: order.nur_salat ? "X" : "",
+        created_at: formattedDate,
+        paid: order.paid ? "Bezahlt" : "Nicht Bezahlt"
+      };
+    });
+
+    res.json({ orders });
+  } catch (err) {
+    console.error('Fehler beim Abrufen aller Bestellungen:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
 // Server starten
