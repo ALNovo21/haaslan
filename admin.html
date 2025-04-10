@@ -65,12 +65,16 @@
             <th>Ohne Tomate</th>
             <th>Mit Scharf</th>
             <th>Mit Schafskäse</th>
+            <th>Ohne Zwiebel</th>
+            <th>Extra Soße</th>
+            <th>Nur Salat</th>
             <th>Getränk</th>
             <th>Preis</th>
             <th>Datum</th>
             <th>Aktion</th>
             <th>Bezahlt</th>
           </tr>
+          
         </thead>
         <tbody id="order-list">
           <!-- Hier kommen die Bestellungen rein -->
@@ -204,6 +208,10 @@ function fetchOrders() {
         const ohneTomate = order.ohne_tomate ? 'X' : '';
         const mitScharf = order.mit_scharf ? 'X' : '';
         const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
+        const ohneZwiebel = order.ohne_zwiebel ? 'X' : '';
+const extraSauce = order.extra_sauce ? 'X' : '';
+const nurSalat = order.nur_salat ? 'X' : '';
+
 
         // **Normale Bestellungen** (Lösch-Buttons für aktuelle Bestellungen)
         orderList.append(`
@@ -217,6 +225,10 @@ function fetchOrders() {
             <td>${ohneTomate}</td>
             <td>${mitScharf}</td>
             <td>${mitSchafskäse}</td>
+            <td>${ohneZwiebel}</td>
+<td>${extraSauce}</td>
+<td>${nurSalat}</td>
+
             <td>${order.drink}</td>
             <td>${order.total_price} €</td>
             <td>${order.created_at}</td>

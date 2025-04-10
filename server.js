@@ -29,36 +29,33 @@ app.use(cors(corsOptions));  // CORS für bestimmte Ursprünge aktivieren
 // Middleware, um JSON-Daten zu verarbeiten
 app.use(express.json());
 
-// Route zum Abrufen der Bestellungen
 app.get('/get-orders', async (req, res) => {
   try {
     const query = `
       SELECT id, firstname, lastname, food_choice, meat_choice, quantity, drink, 
-             ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price, created_at, paid
+             ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse,
+             ohne_zwiebel, extra_sauce, nur_salat,
+             total_price, created_at, paid
       FROM orders
       WHERE DATE(created_at) = CURRENT_DATE
     `;
     const result = await pool.query(query);
 
-    // Bestellungen um das "Extra Wunsch"-Feld und den "paid"-Status erweitern und Datum im gewünschten Format umwandeln
     const orders = result.rows.map(order => {
       const createdAt = new Date(order.created_at);
       const formattedDate = `${String(createdAt.getDate()).padStart(2, '0')}.${String(createdAt.getMonth() + 1).padStart(2, '0')}.${createdAt.getFullYear().toString().slice(2)}`;
 
-      // Extra Wünsche mit "X" kennzeichnen, wenn der Wert true ist
-      const ohneSoße = order.ohne_soße ? "X" : "";
-      const ohneTomate = order.ohne_tomate ? "X" : "";
-      const mitScharf = order.mit_scharf ? "X" : "";
-      const mitSchafskäse = order.mit_schafskäse ? "X" : "";
-
       return {
         ...order,
-        ohne_soße: ohneSoße,
-        ohne_tomate: ohneTomate,
-        mit_scharf: mitScharf,
-        mit_schafskäse: mitSchafskäse,
+        ohne_soße: order.ohne_soße ? "X" : "",
+        ohne_tomate: order.ohne_tomate ? "X" : "",
+        mit_scharf: order.mit_scharf ? "X" : "",
+        mit_schafskäse: order.mit_schafskäse ? "X" : "",
+        ohne_zwiebel: order.ohne_zwiebel ? "X" : "",
+        extra_sauce: order.extra_sauce ? "X" : "",
+        nur_salat: order.nur_salat ? "X" : "",
         created_at: formattedDate,
-        paid: order.paid ? "Bezahlt" : "Nicht Bezahlt" // Status des bezahlten Status einfügen
+        paid: order.paid ? "Bezahlt" : "Nicht Bezahlt"
       };
     });
 
@@ -70,6 +67,7 @@ app.get('/get-orders', async (req, res) => {
 });
 
 
+
 // Route zum Speichern einer neuen Bestellung
 app.post('/submit-orders', async (req, res) => {
   try {
@@ -77,7 +75,7 @@ app.post('/submit-orders', async (req, res) => {
 
     for (const order of orders) {
       await pool.query(
-        'INSERT INTO orders (firstname, lastname, food_choice, meat_choice, quantity, drink, ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, total_price) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
+        'INSERT INTO orders (firstname, lastname, food_choice, meat_choice, quantity, drink, ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse, ohne_zwiebel, nur_salat, extra_soße, total_price) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)',
         [
           order.firstname,
           order.lastname,
@@ -89,9 +87,13 @@ app.post('/submit-orders', async (req, res) => {
           order.extra_no_tomato,
           order.extra_spicy,
           order.extra_with_cheese,
+          order.extra_no_onion,
+          order.extra_only_salad,
+          order.extra_extra_sauce,
           (order.price * order.quantity)
         ]
       );
+      
     }
 
     res.status(200).send('Bestellungen erfolgreich gespeichert');

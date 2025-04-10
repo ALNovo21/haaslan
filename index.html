@@ -229,6 +229,18 @@
                 <input class="form-check-input" type="checkbox" id="extra-spicy">
                 <label class="form-check-label" for="extra-spicy">Mit Scharf</label>
               </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="extra-no-onion">
+                <label class="form-check-label" for="extra-no-onion">Ohne Zwiebel</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="extra-only-salad">
+                <label class="form-check-label" for="extra-only-salad">Nur Salat</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="extra-extra-sauce">
+                <label class="form-check-label" for="extra-extra-sauce">Extra Soße</label>
+              </div>              
             </div>
 
             <div class="form-group">
@@ -296,6 +308,9 @@
         extra_no_sauce: $('#extra-no-sauce').is(':checked'),
         extra_with_cheese: $('#extra-with-cheese').is(':checked'),
         extra_spicy: $('#extra-spicy').is(':checked'),
+        extra_no_onion: $('#extra-no-onion').is(':checked'),
+extra_only_salad: $('#extra-only-salad').is(':checked'),
+extra_extra_sauce: $('#extra-extra-sauce').is(':checked'),
         drinkChoice: $('#drink-choice').val(),
       };
 
@@ -328,6 +343,9 @@
           if (order.extra_no_sauce) extrasText.push("Ohne Soße");
           if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+0,50€)");
           if (order.extra_spicy) extrasText.push("Mit Scharf");
+          if (order.extra_no_onion) extrasText.push("Ohne Zwiebel");
+if (order.extra_only_salad) extrasText.push("Nur Salat");
+if (order.extra_extra_sauce) extrasText.push("Extra Soße");
           if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
 
           const total = (order.price * order.quantity).toFixed(2);
