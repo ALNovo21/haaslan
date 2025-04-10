@@ -34,7 +34,7 @@ app.get('/get-orders', async (req, res) => {
     const query = `
       SELECT id, firstname, lastname, food_choice, meat_choice, quantity, drink, 
              ohne_soße, ohne_tomate, mit_scharf, mit_schafskäse,
-             ohne_zwiebel, extra_sauce, nur_salat,
+             ohne_zwiebel, extra_soße, nur_salat,
              total_price, created_at, paid
       FROM orders
       WHERE DATE(created_at) = CURRENT_DATE
@@ -52,7 +52,7 @@ app.get('/get-orders', async (req, res) => {
         mit_scharf: order.mit_scharf ? "X" : "",
         mit_schafskäse: order.mit_schafskäse ? "X" : "",
         ohne_zwiebel: order.ohne_zwiebel ? "X" : "",
-        extra_sauce: order.extra_sauce ? "X" : "",
+        extra_soße: order.extra_soße ? "X" : "",
         nur_salat: order.nur_salat ? "X" : "",
         created_at: formattedDate,
         paid: order.paid ? "Bezahlt" : "Nicht Bezahlt"
@@ -89,7 +89,7 @@ app.post('/submit-orders', async (req, res) => {
           order.extra_with_cheese,
           order.extra_no_onion,
           order.extra_only_salad,
-          order.extra_extra_sauce,
+          order.extra_extra_soße,
           (order.price * order.quantity)
         ]
       );

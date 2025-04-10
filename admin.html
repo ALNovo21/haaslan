@@ -212,7 +212,7 @@ function fetchOrders() {
         const mitScharf = order.mit_scharf ? 'X' : '';
         const mitSchafskäse = order.mit_schafskäse ? 'X' : '';
         const ohneZwiebel = order.ohne_zwiebel ? 'X' : '';
-const extraSauce = order.extra_sauce ? 'X' : '';
+const extraSauce = order.extra_soße ? 'X' : '';
 const nurSalat = order.nur_salat ? 'X' : '';
 
 
@@ -269,7 +269,7 @@ const nurSalat = order.nur_salat ? 'X' : '';
           order.ohne_tomate ? 'ohne Tomate' : '',
 
           order.ohne_zwiebel ? 'ohne Zwiebel' : '',  // Neue Zutat: Ohne Zwiebel
-  order.extra_sauce ? 'extra Soße' : '',      // Neue Zutat: Extra Soße
+  order.extra_soße ? 'extra Soße' : '',      // Neue Zutat: Extra Soße
   order.nur_salat ? 'nur Salat' : ''  
           
         ].join('|');
@@ -283,7 +283,7 @@ const nurSalat = order.nur_salat ? 'X' : '';
             ohne_soße: order.ohne_soße,
             ohne_tomate: order.ohne_tomate,
             ohne_zwiebel: order.ohne_zwiebel,      // Hinzugefügt: Ohne Zwiebel
-    extra_sauce: order.extra_sauce,         // Hinzugefügt: Extra Soße
+    extra_soße: order.extra_soße,         // Hinzugefügt: Extra Soße
     nur_salat: order.nur_salat,             // Hinzugefügt: Nur Salat
             quantity: 0
           };
@@ -312,7 +312,7 @@ const nurSalat = order.nur_salat ? 'X' : '';
             <td>${entry.ohne_soße ? 'X' : ''}</td>
             <td>${entry.ohne_tomate ? 'X' : ''}</td>
              <td>${entry.ohne_zwiebel ? 'X' : ''}</td> <!-- Anzeige der neuen Zutat: Ohne Zwiebel -->
-      <td>${entry.extra_sauce ? 'X' : ''}</td> <!-- Anzeige der neuen Zutat: Extra Soße -->
+      <td>${entry.extra_soße ? 'X' : ''}</td> <!-- Anzeige der neuen Zutat: Extra Soße -->
       <td>${entry.nur_salat ? 'X' : ''}</td> <!-- Anzeige der neuen Zutat: Nur Salat -->
             <td>${entry.quantity}</td>
           </tr>

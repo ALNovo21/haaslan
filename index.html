@@ -310,7 +310,7 @@
         extra_spicy: $('#extra-spicy').is(':checked'),
         extra_no_onion: $('#extra-no-onion').is(':checked'),
 extra_only_salad: $('#extra-only-salad').is(':checked'),
-extra_extra_sauce: $('#extra-extra-sauce').is(':checked'),
+extra_extra_soße: $('#extra-extra-sauce').is(':checked'),
         drinkChoice: $('#drink-choice').val(),
       };
 
@@ -345,7 +345,7 @@ extra_extra_sauce: $('#extra-extra-sauce').is(':checked'),
           if (order.extra_spicy) extrasText.push("Mit Scharf");
           if (order.extra_no_onion) extrasText.push("Ohne Zwiebel");
 if (order.extra_only_salad) extrasText.push("Nur Salat");
-if (order.extra_extra_sauce) extrasText.push("Extra Soße");
+if (order.extra_extra_soße) extrasText.push("Extra Soße");
           if (order.drinkChoice === "Ayran") extrasText.push("Ayran (+2€)");
 
           const total = (order.price * order.quantity).toFixed(2);
