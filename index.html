@@ -223,7 +223,7 @@
               </div>
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="checkbox" id="extra-with-cheese">
-                <label class="form-check-label" for="extra-with-cheese">Mit Schafskäse + 0,50€</label>
+                <label class="form-check-label" for="extra-with-cheese">Mit Schafskäse + 1,00€</label>
               </div>
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="checkbox" id="extra-spicy">
@@ -323,7 +323,7 @@ extra_extra_soße: $('#extra-extra-sauce').is(':checked'),
       let basePrice = order.foodChoice === "Kebap" ? 6 : 6.5;
       let extras = 0;
 
-      if (order.extra_with_cheese) extras += 0.5;
+      if (order.extra_with_cheese) extras += 1;
       if (order.drinkChoice === "Ayran") extras += 2;
 
       return (basePrice + extras).toFixed(2);
@@ -341,7 +341,7 @@ extra_extra_soße: $('#extra-extra-sauce').is(':checked'),
           let extrasText = [];
           if (order.extra_no_tomato) extrasText.push("Ohne Tomate");
           if (order.extra_no_sauce) extrasText.push("Ohne Soße");
-          if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+0,50€)");
+          if (order.extra_with_cheese) extrasText.push("Mit Schafskäse (+1,00€)");
           if (order.extra_spicy) extrasText.push("Mit Scharf");
           if (order.extra_no_onion) extrasText.push("Ohne Zwiebel");
 if (order.extra_only_salad) extrasText.push("Nur Salat");
