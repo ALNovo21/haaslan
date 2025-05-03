@@ -19,7 +19,7 @@ const pool = new Pool({
 
 
 const corsOptions = {
-  origin: 'https://alnovo21.github.io',
+  origin: '*',
   methods: 'GET,POST,DELETE,PATCH',
 };
 
