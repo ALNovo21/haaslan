@@ -1,22 +1,22 @@
 const express = require('express');
 const { Pool } = require('pg');
-const cors = require('cors'); // CORS-Modul importieren
+const cors = require('cors'); 
 
 const app = express();
-const port = process.env.PORT || 3000;  // Falls PORT nicht gesetzt ist, nutze 3000 für lokale Entwicklung
-// Beispiel: Express Server (app.js oder server.js)
+const port = process.env.PORT || 3000;  
 app.get('/ping', (req, res) => {
   res.status(200).send('pong');
 });
 
-
-// PostgreSQL-Verbindung
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,  // Der Verbindungsstring wird über die Umgebungsvariable gesetzt
-  ssl: {
-    rejectUnauthorized: false // SSL-Verbindung, da Render dies erfordert
-  }
+  user: 'admin',                  
+  host: '10.0.0.220',             
+  database: 'bestell_db',      
+  password: 'workwork!',         
+  port: 5432                     
+
 });
+
 
 const corsOptions = {
   origin: 'https://alnovo21.github.io',
