@@ -199,9 +199,10 @@
             <div class="form-group">
               <label for="food-choice">Gericht</label>
               <select class="form-control" id="food-choice" required>
-                <option value="Kebap">Kebap (6€)</option>
-                <option value="Dürum">Dürum (6,50€)</option>
-              </select>
+  <option value="Kebap">Kebap (6€)</option>
+  <option value="Dürum">Dürum (6,50€)</option>
+  <option value="Kebap-Box">Kebap-Box (7€)</option>
+</select>
             </div>
 
             <div class="form-group">
@@ -326,14 +327,26 @@ extra_extra_soße: $('#extra-extra-sauce').is(':checked'),
     });
 
     function calculatePrice(order) {
-      let basePrice = order.foodChoice === "Kebap" ? 6 : 6.5;
-      let extras = 0;
+  let basePrice = 0;
 
-      if (order.extra_with_cheese) extras += 1;
-      if (order.drinkChoice === "Ayran") extras += 2;
+  switch (order.foodChoice) {
+    case "Kebap":
+      basePrice = 6;
+      break;
+    case "Dürum":
+      basePrice = 6.5;
+      break;
+    case "Kebap-Box":
+      basePrice = 7;
+      break;
+  }
 
-      return (basePrice + extras).toFixed(2);
-    }
+  let extras = 0;
+  if (order.extra_with_cheese) extras += 1;
+  if (order.drinkChoice === "Ayran") extras += 2;
+
+  return (basePrice + extras).toFixed(2);
+}
 
     function updateOrderPreview() {
       const previewContainer = $('#order-preview');
