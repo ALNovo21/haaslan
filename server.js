@@ -10,7 +10,7 @@ app.get('/ping', (req, res) => {
 
 const pool = new Pool({
   user: 'admin',                  
-  host: '178.190.60.68',             
+  host: '178.190.72.173',             
   database: 'bestell_db',      
   password: 'workwork!',         
   port: 5432                     
