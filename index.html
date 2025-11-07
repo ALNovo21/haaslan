@@ -192,6 +192,10 @@
   <!-- ✅ JS -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script>
+    const API = "http://178.190.94.34:3000"; // oder "http://localhost:3000" für lokal
+  </script>
+  
+  <script>
     /* --------------------------- UI TOGGLER --------------------------- */
     function showAuth() {
       document.getElementById('auth-box').style.display = 'flex';
@@ -343,7 +347,7 @@
         return;
       }
       $.ajax({
-        url: '/submit-orders',
+        url: `${API}/submit-orders`,
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(orders),
