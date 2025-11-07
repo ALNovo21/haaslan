@@ -211,7 +211,8 @@
     async function checkAuth() {
       try {
         // Entscheidend: Nur wenn 200 OK -> Main zeigen
-        const res = await fetch("/myorders", { credentials: "include" });
+        const res = await fetch(`${API}/myorders`, { credentials: "include" })
+
         if (res.ok) {
           showMain();
         } else {
@@ -225,7 +226,7 @@
 
     /* --------------------------- SIGNUP / SIGNIN --------------------------- */
     async function signup() {
-      const res = await fetch("/signup", {
+      const res = await fetch(`${API}/signup`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         credentials: "include",
