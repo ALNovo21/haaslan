@@ -1,0 +1,18 @@
+<h1>Meine Bestellungen</h1>
+<div id="orders"></div>
+
+<script>
+async function loadOrders() {
+    const res = await fetch("/myorders");
+    if (res.status === 401) {
+        document.body.innerHTML = "Bitte einloggen.";
+        return;
+    }
+
+    const orders = await res.json();
+    document.getElementById("orders").innerHTML =
+        orders.map(o => `<div>${o.productname} – ${o.time}</div>`).join("");
+}
+
+loadOrders();
+</script>
